@@ -298,7 +298,7 @@
                 </TextBox.InnerRightContent>
               </TextBox>
 
-              <Grid Grid.Row="1" x:Name="LeftSidebarGroups" Margin="0,4,0,0" RowDefinitions="28,Auto,28,Auto,28,Auto,28,Auto,28,Auto,28,Auto" SizeChanged="OnLeftSidebarSizeChanged">
+              <Grid Grid.Row="1" x:Name="LeftSidebarGroups" Margin="0,4,0,0" RowDefinitions="Auto,Auto,28,Auto,28,Auto,28,Auto,28,Auto,28,Auto" SizeChanged="OnLeftSidebarSizeChanged">
                 <!-- Repository Group -->
                 <Grid Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding OwnerGroup, Converter={x:Static ObjectConverters.IsNotNull}}">
                   <Grid.RowDefinitions>
