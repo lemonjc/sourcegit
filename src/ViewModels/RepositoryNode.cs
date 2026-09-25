@@ -103,6 +103,12 @@ namespace SourceGit.ViewModels
             }
         }
 
+        public void OpenAsCollection()
+        {
+            if (!_isRepository)
+                App.GetLauncher().OpenRepositoryGroupInTab(this, null);
+        }
+
         public void Edit()
         {
             var activePage = App.GetLauncher().ActivePage;

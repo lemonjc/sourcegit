@@ -53,7 +53,7 @@ namespace SourceGit.ViewModels
 
             foreach (var page in _launcher.Pages)
             {
-                if (page.Node.IsRepository)
+                if (!page.IsWelcome)
                     _opened.Add(page.Node.Id);
             }
 
@@ -160,7 +160,7 @@ namespace SourceGit.ViewModels
 
                 if (string.IsNullOrEmpty(_searchFilter) ||
                     page.Node.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-                    (page.Node.IsRepository && page.Node.Id.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase)))
+                    (!page.IsWelcome && page.Node.Id.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase)))
                     pages.Add(page);
             }
         }

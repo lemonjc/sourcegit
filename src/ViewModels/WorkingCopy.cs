@@ -53,19 +53,19 @@ namespace SourceGit.ViewModels
         public bool IsStaging
         {
             get => _isStaging;
-            private set => SetProperty(ref _isStaging, value);
+            protected set => SetProperty(ref _isStaging, value);
         }
 
         public bool IsUnstaging
         {
             get => _isUnstaging;
-            private set => SetProperty(ref _isUnstaging, value);
+            protected set => SetProperty(ref _isUnstaging, value);
         }
 
         public bool IsCommitting
         {
             get => _isCommitting;
-            private set
+            protected set
             {
                 if (SetProperty(ref _isCommitting, value))
                     _repo.NotifyIsSkippingOrAbortingMergeChanged();
@@ -84,7 +84,7 @@ namespace SourceGit.ViewModels
             set => _repo.UIStates.NoVerifyOnCommit = value;
         }
 
-        public bool UseAmend
+        public virtual bool UseAmend
         {
             get => _useAmend;
             set
@@ -236,7 +236,7 @@ namespace SourceGit.ViewModels
         public object DetailContext
         {
             get => _detailContext;
-            private set => SetProperty(ref _detailContext, value);
+            protected set => SetProperty(ref _detailContext, value);
         }
 
         public string CommitMessage
@@ -250,7 +250,7 @@ namespace SourceGit.ViewModels
             _repo = repo;
         }
 
-        public void SetData(List<Models.Change> changes)
+        public virtual void SetData(List<Models.Change> changes)
         {
             if (!IsChanged(_cached, changes))
             {
@@ -366,7 +366,7 @@ namespace SourceGit.ViewModels
             UpdateDetail();
         }
 
-        public async Task StageChangesAsync(List<Models.Change> changes, Models.Change next)
+        public virtual async Task StageChangesAsync(List<Models.Change> changes, Models.Change next)
         {
             var canStaged = await GetCanStageChangesAsync(changes);
             var count = canStaged.Count;
@@ -394,7 +394,7 @@ namespace SourceGit.ViewModels
             IsStaging = false;
         }
 
-        public async Task UnstageChangesAsync(List<Models.Change> changes, Models.Change next)
+        public virtual async Task UnstageChangesAsync(List<Models.Change> changes, Models.Change next)
         {
             var count = changes.Count;
             if (count == 0)
@@ -433,20 +433,20 @@ namespace SourceGit.ViewModels
             IsUnstaging = false;
         }
 
-        public async Task SaveChangesToPatchAsync(List<Models.Change> changes, bool isUnstaged, string saveTo)
+        public virtual async Task SaveChangesToPatchAsync(List<Models.Change> changes, bool isUnstaged, string saveTo)
         {
             var succ = await Commands.SaveChangesAsPatch.ProcessLocalChangesAsync(_repo.FullPath, changes, isUnstaged, saveTo);
             if (succ)
                 _repo.SendNotification(App.Text("SaveAsPatchSuccess"));
         }
 
-        public void DiscardAllChanges()
+        public virtual void DiscardAllChanges()
         {
             if (_repo.CanCreatePopup())
                 _repo.ShowPopup(new Discard(_repo));
         }
 
-        public void Discard(List<Models.Change> changes, Models.Change next)
+        public virtual void Discard(List<Models.Change> changes, Models.Change next)
         {
             if (_repo.CanCreatePopup())
                 _repo.ShowPopup(new Discard(_repo, changes, next));
@@ -457,7 +457,7 @@ namespace SourceGit.ViewModels
             Filter = string.Empty;
         }
 
-        public async Task UseTheirsAsync(List<Models.Change> changes)
+        public virtual async Task UseTheirsAsync(List<Models.Change> changes)
         {
             using var lockWatcher = _repo.LockWatcher();
 
@@ -503,7 +503,7 @@ namespace SourceGit.ViewModels
             _repo.MarkWorkingCopyDirtyManually();
         }
 
-        public async Task UseMineAsync(List<Models.Change> changes)
+        public virtual async Task UseMineAsync(List<Models.Change> changes)
         {
             using var lockWatcher = _repo.LockWatcher();
 
@@ -549,12 +549,12 @@ namespace SourceGit.ViewModels
             _repo.MarkWorkingCopyDirtyManually();
         }
 
-        public async Task<bool> UseExternalMergeToolAsync(Models.Change change)
+        public virtual async Task<bool> UseExternalMergeToolAsync(Models.Change change)
         {
             return await new Commands.MergeTool(_repo.FullPath, change?.Path).OpenAsync();
         }
 
-        public void UseExternalDiffTool(Models.Change change, bool isUnstaged)
+        public virtual void UseExternalDiffTool(Models.Change change, bool isUnstaged)
         {
             new Commands.DiffTool(_repo.FullPath, new Models.DiffOption(change, isUnstaged)).Open();
         }
@@ -635,7 +635,7 @@ namespace SourceGit.ViewModels
                 _repo.UIStates.RecentCommitMessages.Clear();
         }
 
-        public async Task CommitAsync(bool autoStage, bool autoPush)
+        public virtual async Task CommitAsync(bool autoStage, bool autoPush)
         {
             if (string.IsNullOrWhiteSpace(_commitMessage))
                 return;
@@ -721,7 +721,7 @@ namespace SourceGit.ViewModels
             IsCommitting = false;
         }
 
-        private List<Models.Change> GetVisibleChanges(List<Models.Change> changes)
+        protected virtual List<Models.Change> GetVisibleChanges(List<Models.Change> changes)
         {
             if (string.IsNullOrEmpty(_filter))
                 return changes;
@@ -737,7 +737,7 @@ namespace SourceGit.ViewModels
             return visible;
         }
 
-        private async Task<List<Models.Change>> GetCanStageChangesAsync(List<Models.Change> changes)
+        protected virtual async Task<List<Models.Change>> GetCanStageChangesAsync(List<Models.Change> changes)
         {
             if (!HasUnsolvedConflicts)
                 return changes;
@@ -765,7 +765,7 @@ namespace SourceGit.ViewModels
             return outs;
         }
 
-        private List<Models.Change> GetStagedChanges(List<Models.Change> cached)
+        protected virtual List<Models.Change> GetStagedChanges(List<Models.Change> cached)
         {
             if (_useAmend)
             {
@@ -783,7 +783,7 @@ namespace SourceGit.ViewModels
             return rs;
         }
 
-        private void UpdateDetail()
+        protected virtual void UpdateDetail()
         {
             if (_selectedUnstaged is { Count: 1, HasFolder: false })
                 SetDetail(_selectedUnstaged.Changes[0], true);
@@ -793,7 +793,7 @@ namespace SourceGit.ViewModels
                 SetDetail(null, false);
         }
 
-        private void UpdateInProgressState()
+        protected virtual void UpdateInProgressState()
         {
             var oldType = _inProgressContext != null ? _inProgressContext.GetType() : null;
 
@@ -854,7 +854,7 @@ namespace SourceGit.ViewModels
                 string.Equals(_autoLoadedCommitMessage, _commitMessage, StringComparison.Ordinal);
         }
 
-        private void SetDetail(Models.Change change, bool isUnstaged)
+        protected virtual void SetDetail(Models.Change change, bool isUnstaged)
         {
             if (_isLoadingData)
                 return;

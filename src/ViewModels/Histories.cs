@@ -215,6 +215,8 @@ namespace SourceGit.ViewModels
             get => DetailContext is CommitDetail or RevisionCompare;
         }
 
+        public bool IsRepositoryGroup => _repo.IsRepositoryGroup;
+
         public bool IsCollapseDetails
         {
             get => _isCollapseDetails;
@@ -294,7 +296,7 @@ namespace SourceGit.ViewModels
             return Models.BisectState.WaitingForMark;
         }
 
-        public void NavigateTo(string commitSHA)
+        public virtual void NavigateTo(string commitSHA)
         {
             var commit = _commits.Find(x => x.SHA.StartsWith(commitSHA, StringComparison.Ordinal));
             if (commit != null)
@@ -330,20 +332,20 @@ namespace SourceGit.ViewModels
             });
         }
 
-        public async Task<Models.Commit> GetCommitAsync(string sha)
+        public virtual async Task<Models.Commit> GetCommitAsync(string sha)
         {
             return await new Commands.QuerySingleCommit(_repo.FullPath, sha)
                 .GetResultAsync()
                 .ConfigureAwait(false);
         }
 
-        public void CheckoutCommitDetached(Models.Commit c)
+        public virtual void CheckoutCommitDetached(Models.Commit c)
         {
             if (!c.IsCurrentHead && _repo.CanCreatePopup())
                 _repo.ShowPopup(new CheckoutDetached(_repo, c));
         }
 
-        public async Task<bool> CheckoutBranchByDecoratorAsync(Models.Decorator decorator)
+        public virtual async Task<bool> CheckoutBranchByDecoratorAsync(Models.Decorator decorator)
         {
             if (decorator == null)
                 return false;
@@ -390,7 +392,7 @@ namespace SourceGit.ViewModels
             return false;
         }
 
-        public async Task CheckoutBranchByCommitAsync(Models.Commit commit)
+        public virtual async Task CheckoutBranchByCommitAsync(Models.Commit commit)
         {
             if (commit.IsCurrentHead)
                 return;
@@ -435,7 +437,7 @@ namespace SourceGit.ViewModels
             }
         }
 
-        public async Task CherryPickAsync(Models.Commit commit)
+        public virtual async Task CherryPickAsync(Models.Commit commit)
         {
             if (_repo.CanCreatePopup())
             {
@@ -461,14 +463,14 @@ namespace SourceGit.ViewModels
             }
         }
 
-        public async Task<string> GetCommitFullMessageAsync(Models.Commit commit)
+        public virtual async Task<string> GetCommitFullMessageAsync(Models.Commit commit)
         {
             return await new Commands.QueryCommitFullMessage(_repo.FullPath, commit.SHA)
                 .GetResultAsync()
                 .ConfigureAwait(false);
         }
 
-        public async Task<Models.Commit> CompareWithHeadAsync(Models.Commit commit)
+        public virtual async Task<Models.Commit> CompareWithHeadAsync(Models.Commit commit)
         {
             var head = _commits.Find(x => x.IsCurrentHead);
             if (head == null)
@@ -484,7 +486,7 @@ namespace SourceGit.ViewModels
             return head;
         }
 
-        public void CompareWithWorktree(Models.Commit commit)
+        public virtual void CompareWithWorktree(Models.Commit commit)
         {
             DetailContext = new RevisionCompare(_repo, commit, null);
         }
@@ -519,7 +521,7 @@ namespace SourceGit.ViewModels
             SelectedCommits = selected;
         }
 
-        private void PostSelectedCommitsChanged()
+        protected virtual void PostSelectedCommitsChanged()
         {
             if (_ignoreSelectionChange)
                 return;
@@ -562,7 +564,7 @@ namespace SourceGit.ViewModels
                 GenerateGraph(_commits);
         }
 
-        private void GenerateGraph(List<Models.Commit> commits)
+        protected void GenerateGraph(List<Models.Commit> commits)
         {
             var firstParentOnly = _repo.UIStates.HistoryShowFlags.HasFlag(Models.HistoryShowFlags.FirstParentOnly);
             var highlighting = _repo.UIStates.GraphHighlighting;
@@ -577,17 +579,17 @@ namespace SourceGit.ViewModels
             Graph = Models.CommitGraph.Generate(commits, firstParentOnly, highlighting, extraHeads);
         }
 
-        private Repository _repo = null;
+        protected Repository _repo = null;
         private Models.Branch _currentBranch = null;
         private bool _hasSingleRemote = false;
-        private CommitDetailSharedData _commitDetailSharedData = null;
+        protected CommitDetailSharedData _commitDetailSharedData = null;
         private bool _isLoading = true;
         private List<Models.Commit> _commits = [];
         private Models.CommitGraph _graph = null;
         private List<Models.Commit> _selectedCommits = [];
         private Models.Bisect _bisect = null;
         private object _detailContext = Models.Null.Instance;
-        private bool _ignoreSelectionChange = false;
+        protected bool _ignoreSelectionChange = false;
 
         private bool _isSearchingCommits = false;
         private SearchCommitContext _searchCommitContext = null;

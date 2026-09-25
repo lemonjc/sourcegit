@@ -34,7 +34,7 @@ namespace SourceGit.Views
         private async void OnOpenAssumeUnchanged(object sender, RoutedEventArgs e)
         {
             var repoView = this.FindAncestorOfType<Repository>();
-            if (repoView is { DataContext: ViewModels.Repository repo })
+            if (repoView is { DataContext: ViewModels.Repository { IsRepositoryGroup: false } repo })
                 await this.ShowDialogAsync(new ViewModels.AssumeUnchangedManager(repo));
 
             e.Handled = true;
@@ -58,6 +58,210 @@ namespace SourceGit.Views
                 menu?.Open(sender as Control);
                 e.Handled = true;
             }
+        }
+
+        private ContextMenu CreateContextMenuForUnstagedChanges(ViewModels.Repository repo, ViewModels.WorkingCopy vm, ViewModels.ChangeSelection selection)
+        {
+            var changes = selection.Changes;
+
+            // In group mode, route the menu to the child repository when all selected
+            // changes come from the same one. Otherwise fall back to a reduced menu.
+            if (vm is ViewModels.GroupWorkingCopy)
+            {
+                var owner = TryGetSingleOwner(changes);
+                if (owner == null)
+                    return CreateCrossRepositoryContextMenu(vm, selection, true);
+
+                repo = owner;
+                vm = owner.WorkingCopy;
+                changes = CollectRealChanges(changes);
+                selection = new ViewModels.ChangeSelection(changes);
+            }
+
+            return CreateContextMenuForUnstagedChangesInternal(repo, vm, selection, changes);
+        }
+
+        private ContextMenu CreateContextMenuForStagedChanges(ViewModels.Repository repo, ViewModels.WorkingCopy vm, ViewModels.ChangeSelection selection)
+        {
+            var changes = selection.Changes;
+
+            // In group mode, route the menu to the child repository when all selected
+            // changes come from the same one. Otherwise fall back to a reduced menu.
+            if (vm is ViewModels.GroupWorkingCopy)
+            {
+                var owner = TryGetSingleOwner(changes);
+                if (owner == null)
+                    return CreateCrossRepositoryContextMenu(vm, selection, false);
+
+                repo = owner;
+                vm = owner.WorkingCopy;
+                changes = CollectRealChanges(changes);
+                selection = new ViewModels.ChangeSelection(changes);
+            }
+
+            return CreateContextMenuForStagedChangesInternal(repo, vm, selection, changes);
+        }
+
+        private static ViewModels.Repository TryGetSingleOwner(List<Models.Change> changes)
+        {
+            ViewModels.Repository owner = null;
+            foreach (var change in changes)
+            {
+                if (change is not ViewModels.GroupChange gc)
+                    return null;
+
+                if (owner == null)
+                    owner = gc.Owner;
+                else if (!ReferenceEquals(owner, gc.Owner))
+                    return null;
+            }
+
+            return owner;
+        }
+
+        private static List<Models.Change> CollectRealChanges(List<Models.Change> changes)
+        {
+            var real = new List<Models.Change>();
+            foreach (var change in changes)
+            {
+                if (change is ViewModels.GroupChange gc)
+                    real.Add(gc.Source);
+            }
+
+            return real;
+        }
+
+        private static string GetAbsPathForChange(ViewModels.Repository repo, Models.Change change)
+        {
+            if (change is ViewModels.GroupChange gc)
+                return Native.OS.GetAbsPath(gc.Owner.FullPath, gc.RealPath);
+
+            return Native.OS.GetAbsPath(repo.FullPath, change.Path);
+        }
+
+        private static string GetAbsPathForFolder(ViewModels.Repository repo, string folder)
+        {
+            var group = repo.OwnerGroup ?? (repo as ViewModels.RepositoryGroup);
+            if (group != null)
+            {
+                var idx = folder.IndexOf('/');
+                if (idx > 0)
+                {
+                    var repoName = folder.Substring(0, idx);
+                    foreach (var child in group.Children)
+                    {
+                        if (child.Name.Equals(repoName, StringComparison.Ordinal))
+                            return Native.OS.GetAbsPath(child.Repo.FullPath, folder.Substring(idx + 1));
+                    }
+                }
+            }
+
+            return Native.OS.GetAbsPath(repo.FullPath, folder);
+        }
+
+        private ContextMenu CreateCrossRepositoryContextMenu(ViewModels.WorkingCopy vm, ViewModels.ChangeSelection selection, bool isUnstaged)
+        {
+            var menu = new ContextMenu();
+            var changes = selection.Changes;
+
+            if (isUnstaged)
+            {
+                var stage = new MenuItem();
+                stage.Header = App.Text("FileCM.Stage");
+                stage.Icon = this.CreateMenuIcon("Icons.File.Add");
+                stage.Tag = "Enter/Space";
+                stage.Click += async (_, e) =>
+                {
+                    var next = UnstagedChangesView.GetNextChangeWithoutSelection();
+                    await vm.StageChangesAsync(changes, next);
+                    e.Handled = true;
+                };
+                menu.Items.Add(stage);
+            }
+            else
+            {
+                var unstage = new MenuItem();
+                unstage.Header = App.Text("FileCM.Unstage");
+                unstage.Icon = this.CreateMenuIcon("Icons.File.Minus");
+                unstage.Click += async (_, e) =>
+                {
+                    var next = StagedChangesView.GetNextChangeWithoutSelection();
+                    await vm.UnstageChangesAsync(changes, next);
+                    e.Handled = true;
+                };
+                menu.Items.Add(unstage);
+            }
+
+            var discard = new MenuItem();
+            discard.Header = App.Text("FileCM.Discard");
+            discard.Icon = this.CreateMenuIcon("Icons.Undo");
+            discard.Tag = "Back/Delete";
+            discard.Click += (_, e) =>
+            {
+                var next = isUnstaged ? UnstagedChangesView.GetNextChangeWithoutSelection() : StagedChangesView.GetNextChangeWithoutSelection();
+                vm.Discard(changes, next);
+                e.Handled = true;
+            };
+            menu.Items.Add(discard);
+
+            var patch = new MenuItem();
+            patch.Header = App.Text("FileCM.SaveAsPatch");
+            patch.Icon = this.CreateMenuIcon("Icons.Save");
+            patch.Click += async (_, e) =>
+            {
+                var storageProvider = TopLevel.GetTopLevel(this)?.StorageProvider;
+                if (storageProvider == null)
+                    return;
+
+                var options = new FilePickerSaveOptions();
+                options.Title = App.Text("FileCM.SaveAsPatch");
+                options.DefaultExtension = ".patch";
+                options.FileTypeChoices = [new FilePickerFileType("Patch File") { Patterns = ["*.patch"] }];
+
+                try
+                {
+                    var storageFile = await storageProvider.SaveFilePickerAsync(options);
+                    if (storageFile != null)
+                        await vm.SaveChangesToPatchAsync(changes, isUnstaged, storageFile.Path.LocalPath);
+                }
+                catch (Exception exception)
+                {
+                    vm.Repository.SendNotification($"Failed to save as patch: {exception.Message}", true);
+                }
+
+                e.Handled = true;
+            };
+            menu.Items.Add(patch);
+
+            menu.Items.Add(new MenuItem() { Header = "-" });
+
+            var copyRel = new MenuItem();
+            copyRel.Header = App.Text("FileCM.CopyPath");
+            copyRel.Icon = this.CreateMenuIcon("Icons.Copy");
+            copyRel.Click += async (_, e) =>
+            {
+                var builder = new StringBuilder();
+                foreach (var c in changes)
+                    builder.AppendLine(c.Path);
+                await this.CopyTextAsync(builder.ToString().TrimEnd());
+                e.Handled = true;
+            };
+            menu.Items.Add(copyRel);
+
+            var copyAbs = new MenuItem();
+            copyAbs.Header = App.Text("FileCM.CopyFullPath");
+            copyAbs.Icon = this.CreateMenuIcon("Icons.Copy");
+            copyAbs.Click += async (_, e) =>
+            {
+                var builder = new StringBuilder();
+                foreach (var c in changes)
+                    builder.AppendLine(GetAbsPathForChange(vm.Repository, c));
+                await this.CopyTextAsync(builder.ToString().TrimEnd());
+                e.Handled = true;
+            };
+            menu.Items.Add(copyAbs);
+
+            return menu;
         }
 
         private async void OnUnstagedChangeDoubleTapped(object _, RoutedEventArgs e)
@@ -106,7 +310,7 @@ namespace SourceGit.Views
                 else if (e.Key is Key.O && e.KeyModifiers == cmdKey && changes.Count == 1)
                 {
                     var change = changes[0];
-                    var fullpath = Native.OS.GetAbsPath(vm.Repository.FullPath, change.Path);
+                    var fullpath = GetAbsPathForChange(vm.Repository, change);
                     if (File.Exists(fullpath))
                         Native.OS.OpenWithDefaultEditor(fullpath);
                     e.Handled = true;
@@ -117,17 +321,17 @@ namespace SourceGit.Views
                     var copyAbsPath = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
                     if (selection.IsSingleFolder)
                     {
-                        builder.Append(copyAbsPath ? Native.OS.GetAbsPath(vm.Repository.FullPath, selection.SingleFolderPath) : selection.SingleFolderPath);
+                        builder.Append(copyAbsPath ? GetAbsPathForFolder(vm.Repository, selection.SingleFolderPath) : selection.SingleFolderPath);
                     }
                     else if (changes.Count == 1)
                     {
                         var change = changes[0];
-                        builder.Append(copyAbsPath ? Native.OS.GetAbsPath(vm.Repository.FullPath, change.Path) : change.Path);
+                        builder.Append(copyAbsPath ? GetAbsPathForChange(vm.Repository, change) : change.Path);
                     }
                     else
                     {
                         foreach (var c in changes)
-                            builder.AppendLine(copyAbsPath ? Native.OS.GetAbsPath(vm.Repository.FullPath, c.Path) : c.Path);
+                            builder.AppendLine(copyAbsPath ? GetAbsPathForChange(vm.Repository, c) : c.Path);
                     }
 
                     if (builder.Length > 0)
@@ -162,7 +366,7 @@ namespace SourceGit.Views
                 else if (e.Key is Key.O && e.KeyModifiers == cmdKey && changes.Count == 1)
                 {
                     var change = changes[0];
-                    var fullpath = Native.OS.GetAbsPath(vm.Repository.FullPath, change.Path);
+                    var fullpath = GetAbsPathForChange(vm.Repository, change);
                     if (File.Exists(fullpath))
                         Native.OS.OpenWithDefaultEditor(fullpath);
                     e.Handled = true;
@@ -173,17 +377,17 @@ namespace SourceGit.Views
                     var copyAbsPath = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
                     if (selection.IsSingleFolder)
                     {
-                        builder.Append(copyAbsPath ? Native.OS.GetAbsPath(vm.Repository.FullPath, selection.SingleFolderPath) : selection.SingleFolderPath);
+                        builder.Append(copyAbsPath ? GetAbsPathForFolder(vm.Repository, selection.SingleFolderPath) : selection.SingleFolderPath);
                     }
                     else if (changes.Count == 1)
                     {
                         var change = changes[0];
-                        builder.Append(copyAbsPath ? Native.OS.GetAbsPath(vm.Repository.FullPath, change.Path) : change.Path);
+                        builder.Append(copyAbsPath ? GetAbsPathForChange(vm.Repository, change) : change.Path);
                     }
                     else
                     {
                         foreach (var c in changes)
-                            builder.AppendLine(copyAbsPath ? Native.OS.GetAbsPath(vm.Repository.FullPath, c.Path) : c.Path);
+                            builder.AppendLine(copyAbsPath ? GetAbsPathForChange(vm.Repository, c) : c.Path);
                     }
 
                     if (builder.Length > 0)
@@ -289,9 +493,8 @@ namespace SourceGit.Views
             e.Handled = true;
         }
 
-        private ContextMenu CreateContextMenuForUnstagedChanges(ViewModels.Repository repo, ViewModels.WorkingCopy vm, ViewModels.ChangeSelection selection)
+        private ContextMenu CreateContextMenuForUnstagedChangesInternal(ViewModels.Repository repo, ViewModels.WorkingCopy vm, ViewModels.ChangeSelection selection, List<Models.Change> changes)
         {
-            var changes = selection.Changes;
             var menu = new ContextMenu();
 
             if (changes.Count == 1)
@@ -939,9 +1142,8 @@ namespace SourceGit.Views
             return menu;
         }
 
-        public ContextMenu CreateContextMenuForStagedChanges(ViewModels.Repository repo, ViewModels.WorkingCopy vm, ViewModels.ChangeSelection selection)
+        private ContextMenu CreateContextMenuForStagedChangesInternal(ViewModels.Repository repo, ViewModels.WorkingCopy vm, ViewModels.ChangeSelection selection, List<Models.Change> changes)
         {
-            var changes = selection.Changes;
             var menu = new ContextMenu();
 
             MenuItem ai = null;

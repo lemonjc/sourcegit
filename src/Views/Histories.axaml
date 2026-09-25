@@ -253,7 +253,7 @@
                     Margin="4,0,0,0"
                     VerticalAlignment="Center"
                     Spacing="6">
-          <ToggleButton Classes="line_path" Width="18" IsChecked="{Binding IsSearchingCommits, Mode=TwoWay}">
+          <ToggleButton Classes="line_path" Width="18" IsChecked="{Binding IsSearchingCommits, Mode=TwoWay}" IsVisible="{Binding !IsRepositoryGroup}">
             <ToolTip.Tip>
               <TextBlock>
                 <Run Text="{DynamicResource Text.Repository.Search.ToolTip}" Foreground="{DynamicResource Brush.FG1}"/>

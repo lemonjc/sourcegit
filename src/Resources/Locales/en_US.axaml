@@ -129,6 +129,10 @@
   <x:String x:Key="Text.CheckoutDetached" xml:space="preserve">Checkout Commit or Tag</x:String>
   <x:String x:Key="Text.CheckoutDetached.Target" xml:space="preserve">Target:</x:String>
   <x:String x:Key="Text.CheckoutDetached.Warning" xml:space="preserve">Warning: After doing this, HEAD will be detached</x:String>
+  <x:String x:Key="Text.CheckoutGroup.BranchMissing" xml:space="preserve">Not in this repository</x:String>
+  <x:String x:Key="Text.CheckoutGroup.CreateIfMissing" xml:space="preserve">Create</x:String>
+  <x:String x:Key="Text.CheckoutGroup.Title" xml:space="preserve">Checkout Branch in All Repositories</x:String>
+  <x:String x:Key="Text.CheckoutGroup.WillCheckout" xml:space="preserve">Checkout</x:String>
   <x:String x:Key="Text.CherryPick" xml:space="preserve">Cherry Pick</x:String>
   <x:String x:Key="Text.CherryPick.AppendSourceToMessage" xml:space="preserve">Append source to commit message</x:String>
   <x:String x:Key="Text.CherryPick.Commit" xml:space="preserve">Commit(s):</x:String>
@@ -325,6 +329,9 @@
   <x:String x:Key="Text.CreateBranch.Name.Placeholder" xml:space="preserve">Enter branch name.</x:String>
   <x:String x:Key="Text.CreateBranch.Title" xml:space="preserve">Create Local Branch</x:String>
   <x:String x:Key="Text.CreateBranch.OverwriteExisting" xml:space="preserve">Overwrite existing branch</x:String>
+  <x:String x:Key="Text.CreateBranchGroup.AllowOverwrite" xml:space="preserve">Allow overwrite existed branches</x:String>
+  <x:String x:Key="Text.CreateBranchGroup.AlreadyExists" xml:space="preserve">Branch already exists</x:String>
+  <x:String x:Key="Text.CreateBranchGroup.Title" xml:space="preserve">Create Branch in All Repositories</x:String>
   <x:String x:Key="Text.CreateTag" xml:space="preserve">Create Tag...</x:String>
   <x:String x:Key="Text.CreateTag.BasedOn" xml:space="preserve">New Tag At:</x:String>
   <x:String x:Key="Text.CreateTag.GPGSign" xml:space="preserve">GPG signing</x:String>
@@ -412,6 +419,7 @@
   <x:String x:Key="Text.Discard.IncludeUntracked" xml:space="preserve">Include untracked files</x:String>
   <x:String x:Key="Text.Discard.Total" xml:space="preserve">{0} changes will be discarded</x:String>
   <x:String x:Key="Text.Discard.Warning" xml:space="preserve">You can't undo this action!!!</x:String>
+  <x:String x:Key="Text.DiscardGroup.Title" xml:space="preserve">Discard Changes</x:String>
   <x:String x:Key="Text.EditBranchDescription" xml:space="preserve">Edit Branch's Description</x:String>
   <x:String x:Key="Text.EditBranchDescription.Target" xml:space="preserve">Target:</x:String>
   <x:String x:Key="Text.EditRepositoryNode.Bookmark" xml:space="preserve">Bookmark:</x:String>
@@ -427,6 +435,7 @@
   <x:String x:Key="Text.Fetch.NoTags" xml:space="preserve">Fetch without tags</x:String>
   <x:String x:Key="Text.Fetch.Remote" xml:space="preserve">Remote:</x:String>
   <x:String x:Key="Text.Fetch.Title" xml:space="preserve">Fetch Remote Changes</x:String>
+  <x:String x:Key="Text.FetchGroup.Title" xml:space="preserve">Fetch All Repositories</x:String>
   <x:String x:Key="Text.File.Binary" xml:space="preserve">BINARY FILE</x:String>
   <x:String x:Key="Text.File.HexViewer" xml:space="preserve">HEX VIEWER</x:String>
   <x:String x:Key="Text.File.HexViewer.GotoAddress" xml:space="preserve">Go to address...</x:String>
@@ -747,6 +756,7 @@
   <x:String x:Key="Text.Pull.Remote" xml:space="preserve">Remote:</x:String>
   <x:String x:Key="Text.Pull.Title" xml:space="preserve">Pull (Fetch &amp; Merge)</x:String>
   <x:String x:Key="Text.Pull.UseRebase" xml:space="preserve">Use rebase instead of merge</x:String>
+  <x:String x:Key="Text.PullGroup.Title" xml:space="preserve">Pull All Repositories</x:String>
   <x:String x:Key="Text.Push" xml:space="preserve">Push</x:String>
   <x:String x:Key="Text.Push.CheckSubmodules" xml:space="preserve">Make sure submodules have been pushed</x:String>
   <x:String x:Key="Text.Push.Force" xml:space="preserve">Force push</x:String>
@@ -760,6 +770,7 @@
   <x:String x:Key="Text.Push.To" xml:space="preserve">Remote Branch:</x:String>
   <x:String x:Key="Text.Push.Tracking" xml:space="preserve">Set as tracking branch</x:String>
   <x:String x:Key="Text.Push.WithAllTags" xml:space="preserve">Push all tags</x:String>
+  <x:String x:Key="Text.PushGroup.Title" xml:space="preserve">Push All Repositories</x:String>
   <x:String x:Key="Text.PushTag" xml:space="preserve">Push Tag To Remote</x:String>
   <x:String x:Key="Text.PushTag.PushAllRemotes" xml:space="preserve">Push to all remotes</x:String>
   <x:String x:Key="Text.PushTag.Remote" xml:space="preserve">Remote:</x:String>
@@ -868,6 +879,17 @@
   <x:String x:Key="Text.Repository.Worktrees" xml:space="preserve">WORKTREES</x:String>
   <x:String x:Key="Text.Repository.Worktrees.Add" xml:space="preserve">Add Worktree</x:String>
   <x:String x:Key="Text.Repository.Worktrees.Prune" xml:space="preserve">Prune</x:String>
+  <x:String x:Key="Text.RepositoryGroup.AmendNotSupported" xml:space="preserve">Amend is not supported in repository collection. Please switch to the single repository view.</x:String>
+  <x:String x:Key="Text.RepositoryGroup.CommitBranchCheck" xml:space="preserve">Commit across repositories</x:String>
+  <x:String x:Key="Text.RepositoryGroup.CommitSkippedDetachedHead" xml:space="preserve">{0}: skipped. Detached HEAD is not supported in collection commit.</x:String>
+  <x:String x:Key="Text.RepositoryGroup.CommitSkippedNothingStaged" xml:space="preserve">{0}: skipped. Nothing staged.</x:String>
+  <x:String x:Key="Text.RepositoryGroup.ConfirmBranchMismatch" xml:space="preserve">{0}&#10;&#10;The involved repositories are NOT on branches with the same name:&#10;&#10;{1}&#10;&#10;Continue anyway?</x:String>
+  <x:String x:Key="Text.RepositoryGroup.HasLocalChanges" xml:space="preserve">Has local changes</x:String>
+  <x:String x:Key="Text.RepositoryGroup.NoRemotes" xml:space="preserve">No remotes</x:String>
+  <x:String x:Key="Text.RepositoryGroup.NothingToCommit" xml:space="preserve">Nothing to commit in any repository of this group!</x:String>
+  <x:String x:Key="Text.RepositoryGroup.RemoteBranchInGroupUnsupported" xml:space="preserve">Remote branches should be handled in the single repository view.</x:String>
+  <x:String x:Key="Text.RepositoryGroup.StageBranchCheck" xml:space="preserve">Stage files across repositories</x:String>
+  <x:String x:Key="Text.RepositoryGroup.StashNotSupported" xml:space="preserve">Stash is not supported in repository collection. Please switch to the single repository view.</x:String>
   <x:String x:Key="Text.RepositoryURL" xml:space="preserve">Git Repository URL</x:String>
   <x:String x:Key="Text.Reset" xml:space="preserve">Reset Current Branch To Revision</x:String>
   <x:String x:Key="Text.Reset.Mode" xml:space="preserve">Reset Mode:</x:String>
@@ -1018,6 +1040,7 @@
   <x:String x:Key="Text.Welcome.Edit" xml:space="preserve">Edit</x:String>
   <x:String x:Key="Text.Welcome.Move" xml:space="preserve">Move to Another Group</x:String>
   <x:String x:Key="Text.Welcome.OpenAllInNode" xml:space="preserve">Open All Repositories</x:String>
+  <x:String x:Key="Text.Welcome.OpenAsCollection" xml:space="preserve">Open as Repository Collection</x:String>
   <x:String x:Key="Text.Welcome.OpenOrInit" xml:space="preserve">Open Repository</x:String>
   <x:String x:Key="Text.Welcome.OpenTerminal" xml:space="preserve">Open Terminal</x:String>
   <x:String x:Key="Text.Welcome.ScanDefaultCloneDir" xml:space="preserve">Rescan Repositories in Default Clone Dir</x:String>

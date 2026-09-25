@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:SourceGit.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="520" d:DesignHeight="450"
+             x:Class="SourceGit.Views.CreateBranchGroup"
+             x:DataType="vm:CreateBranchGroup">
+  <StackPanel Orientation="Vertical" Margin="8,0">
+    <StackPanel Orientation="Horizontal">
+      <Path Width="16" Height="16" Data="{StaticResource Icons.Branch}"/>
+      <TextBlock FontSize="18" Margin="8,0,0,0" Classes="bold" Text="{DynamicResource Text.CreateBranchGroup.Title}"/>
+    </StackPanel>
+
+    <Grid Margin="0,12,0,0" RowDefinitions="32,Auto,Auto" ColumnDefinitions="120,*">
+      <TextBlock Grid.Row="0" Grid.Column="0"
+                 HorizontalAlignment="Right" VerticalAlignment="Center"
+                 Margin="0,0,8,0"
+                 Text="{DynamicResource Text.CreateBranch.Name}"/>
+      <TextBox Grid.Row="0" Grid.Column="1"
+               Height="28"
+               VerticalContentAlignment="Center"
+               Text="{Binding Name, Mode=TwoWay}"/>
+
+      <CheckBox Grid.Row="1" Grid.Column="1"
+                Content="{DynamicResource Text.CreateBranch.Checkout}"
+                IsChecked="{Binding CheckoutAfterCreated, Mode=TwoWay}"/>
+
+      <CheckBox Grid.Row="2" Grid.Column="1"
+                Content="{DynamicResource Text.CreateBranchGroup.AllowOverwrite}"
+                IsChecked="{Binding AllowOverwrite, Mode=TwoWay}"
+                ToolTip.Tip="-f / -B"/>
+    </Grid>
+
+    <ScrollViewer Margin="0,8,0,0" MaxHeight="240">
+      <ItemsControl ItemsSource="{Binding Repositories, Mode=OneWay}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate DataType="vm:CreateBranchGroupRepository">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto" Height="30">
+              <CheckBox Grid.Column="0"
+                        MinWidth="0"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        IsChecked="{Binding IsEnabled, Mode=TwoWay}"/>
+              <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name, Mode=OneWay}"/>
+              <TextBlock Grid.Column="2" Margin="0,0,8,0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                         Foreground="DarkOrange"
+                         Text="{DynamicResource Text.CreateBranchGroup.AlreadyExists}"
+                         IsVisible="{Binding AlreadyExists, Mode=OneWay}"/>
+              <ComboBox Grid.Column="3"
+                        Width="180"
+                        VerticalAlignment="Center"
+                        ItemsSource="{Binding LocalBranchNames, Mode=OneWay}"
+                        SelectedItem="{Binding SelectedBasedOn, Mode=TwoWay}"/>
+            </Grid>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </StackPanel>
+</UserControl>

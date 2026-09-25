@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:SourceGit.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="520" d:DesignHeight="450"
+             x:Class="SourceGit.Views.FetchGroup"
+             x:DataType="vm:FetchGroup">
+  <StackPanel Orientation="Vertical" Margin="8,0">
+    <StackPanel Orientation="Horizontal">
+      <Path Width="16" Height="16" Data="{StaticResource Icons.Fetch}"/>
+      <TextBlock FontSize="18" Margin="8,0,0,0" Classes="bold" Text="{DynamicResource Text.FetchGroup.Title}"/>
+    </StackPanel>
+
+    <Grid Margin="0,12,0,0" RowDefinitions="Auto,Auto,Auto">
+      <CheckBox Grid.Row="0" Content="{DynamicResource Text.Fetch.NoTags}" IsChecked="{Binding NoTags, Mode=TwoWay}" ToolTip.Tip="--no-tags"/>
+      <CheckBox Grid.Row="1" Content="{DynamicResource Text.Fetch.Force}" IsChecked="{Binding Force, Mode=TwoWay}" ToolTip.Tip="--force"/>
+
+      <ScrollViewer Grid.Row="2" Margin="0,8,0,0" MaxHeight="240">
+        <ItemsControl ItemsSource="{Binding Repositories, Mode=OneWay}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="vm:FetchGroupRepository">
+              <Grid ColumnDefinitions="Auto,*,Auto" Height="26">
+                <CheckBox Grid.Column="0"
+                          MinWidth="0"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center"
+                          IsChecked="{Binding IsEnabled, Mode=TwoWay}"/>
+                <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name, Mode=OneWay}"/>
+                <TextBlock Grid.Column="2" Classes="info_label" VerticalAlignment="Center" Text="{DynamicResource Text.RepositoryGroup.NoRemotes}"
+                           IsVisible="{Binding HasRemotes, Mode=OneWay, Converter={x:Static BoolConverters.Not}}"/>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+  </StackPanel>
+</UserControl>

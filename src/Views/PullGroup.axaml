@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:SourceGit.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="520" d:DesignHeight="450"
+             x:Class="SourceGit.Views.PullGroup"
+             x:DataType="vm:PullGroup">
+  <StackPanel Orientation="Vertical" Margin="8,0">
+    <StackPanel Orientation="Horizontal">
+      <Path Width="16" Height="16" Data="{StaticResource Icons.Pull}"/>
+      <TextBlock FontSize="18" Margin="8,0,0,0" Classes="bold" Text="{DynamicResource Text.PullGroup.Title}"/>
+    </StackPanel>
+
+    <CheckBox Margin="0,12,0,0"
+              Content="{DynamicResource Text.Pull.UseRebase}"
+              IsChecked="{Binding UseRebase, Mode=TwoWay}"
+              ToolTip.Tip="--rebase"/>
+
+    <ScrollViewer Margin="0,8,0,0" MaxHeight="280">
+      <ItemsControl ItemsSource="{Binding Repositories, Mode=OneWay}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate DataType="vm:PullGroupRepository">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto" Height="26">
+              <CheckBox Grid.Column="0"
+                        MinWidth="0"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        IsChecked="{Binding IsEnabled, Mode=TwoWay}"/>
+              <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name, Mode=OneWay}"/>
+              <TextBlock Grid.Column="2" Classes="info_label" Margin="0,0,8,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding UpstreamBranch, Mode=OneWay}"/>
+              <TextBlock Grid.Column="3" VerticalAlignment="Center"
+                         Foreground="DarkOrange"
+                         Text="{DynamicResource Text.RepositoryGroup.HasLocalChanges}"
+                         IsVisible="{Binding HasLocalChanges, Mode=OneWay}"/>
+            </Grid>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </StackPanel>
+</UserControl>

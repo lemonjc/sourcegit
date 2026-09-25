@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:SourceGit.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="520" d:DesignHeight="450"
+             x:Class="SourceGit.Views.DiscardGroup"
+             x:DataType="vm:DiscardGroup">
+  <StackPanel Orientation="Vertical" Margin="8,0">
+    <StackPanel Orientation="Horizontal">
+      <Path Width="16" Height="16" Data="{StaticResource Icons.Clear}"/>
+      <TextBlock FontSize="18" Margin="8,0,0,0" Classes="bold" Text="{DynamicResource Text.DiscardGroup.Title}"/>
+    </StackPanel>
+
+    <Grid Margin="0,12,0,0" RowDefinitions="Auto,Auto,Auto" IsVisible="{Binding IsDiscardAll, Mode=OneWay}">
+      <CheckBox Grid.Row="0" Content="{DynamicResource Text.Discard.IncludeModified}" IsChecked="{Binding Mode.IncludeModified, Mode=TwoWay}"/>
+      <CheckBox Grid.Row="1" Content="{DynamicResource Text.Discard.IncludeUntracked}" IsChecked="{Binding Mode.IncludeUntracked, Mode=TwoWay}"/>
+      <CheckBox Grid.Row="2" Content="{DynamicResource Text.Discard.IncludeIgnored}" IsChecked="{Binding Mode.IncludeIgnored, Mode=TwoWay}"/>
+    </Grid>
+
+    <ScrollViewer Margin="0,8,0,0" MaxHeight="240">
+      <ItemsControl ItemsSource="{Binding Repositories, Mode=OneWay}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate DataType="vm:DiscardGroupRepository">
+            <Grid ColumnDefinitions="Auto,*,Auto" Height="26">
+              <CheckBox Grid.Column="0"
+                        MinWidth="0"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        IsChecked="{Binding IsEnabled, Mode=TwoWay}"/>
+              <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name, Mode=OneWay}"/>
+              <TextBlock Grid.Column="2" Classes="info_label" VerticalAlignment="Center"
+                         Text="{Binding ChangesCount, Mode=OneWay, StringFormat='({0})'}"/>
+            </Grid>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </StackPanel>
+</UserControl>

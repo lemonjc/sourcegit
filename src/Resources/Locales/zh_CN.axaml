@@ -133,6 +133,10 @@
   <x:String x:Key="Text.CheckoutDetached" xml:space="preserve">检出提交或标签</x:String>
   <x:String x:Key="Text.CheckoutDetached.Target" xml:space="preserve">目标 ：</x:String>
   <x:String x:Key="Text.CheckoutDetached.Warning" xml:space="preserve">注意：执行该操作后，当前HEAD会变为游离(detached)状态!</x:String>
+  <x:String x:Key="Text.CheckoutGroup.BranchMissing" xml:space="preserve">该仓库无此分支</x:String>
+  <x:String x:Key="Text.CheckoutGroup.CreateIfMissing" xml:space="preserve">创建</x:String>
+  <x:String x:Key="Text.CheckoutGroup.Title" xml:space="preserve">在所有仓库切换分支</x:String>
+  <x:String x:Key="Text.CheckoutGroup.WillCheckout" xml:space="preserve">切换</x:String>
   <x:String x:Key="Text.CherryPick" xml:space="preserve">挑选提交</x:String>
   <x:String x:Key="Text.CherryPick.AppendSourceToMessage" xml:space="preserve">提交信息中追加来源信息</x:String>
   <x:String x:Key="Text.CherryPick.Commit" xml:space="preserve">提交列表 ：</x:String>
@@ -329,6 +333,9 @@
   <x:String x:Key="Text.CreateBranch.Name.Placeholder" xml:space="preserve">填写分支名称。</x:String>
   <x:String x:Key="Text.CreateBranch.Title" xml:space="preserve">创建本地分支</x:String>
   <x:String x:Key="Text.CreateBranch.OverwriteExisting" xml:space="preserve">允许重置已存在的分支</x:String>
+  <x:String x:Key="Text.CreateBranchGroup.AllowOverwrite" xml:space="preserve">允许覆盖已存在的分支</x:String>
+  <x:String x:Key="Text.CreateBranchGroup.AlreadyExists" xml:space="preserve">分支已存在</x:String>
+  <x:String x:Key="Text.CreateBranchGroup.Title" xml:space="preserve">在所有仓库创建分支</x:String>
   <x:String x:Key="Text.CreateTag" xml:space="preserve">新建标签...</x:String>
   <x:String x:Key="Text.CreateTag.BasedOn" xml:space="preserve">标签位于 ：</x:String>
   <x:String x:Key="Text.CreateTag.GPGSign" xml:space="preserve">使用GPG签名</x:String>
@@ -416,6 +423,7 @@
   <x:String x:Key="Text.Discard.IncludeUntracked" xml:space="preserve">包括未跟踪的文件</x:String>
   <x:String x:Key="Text.Discard.Total" xml:space="preserve">总计{0}项选中更改</x:String>
   <x:String x:Key="Text.Discard.Warning" xml:space="preserve">本操作不支持回退，请确认后继续！！！</x:String>
+  <x:String x:Key="Text.DiscardGroup.Title" xml:space="preserve">丢弃改动</x:String>
   <x:String x:Key="Text.EditBranchDescription" xml:space="preserve">编辑分支描述</x:String>
   <x:String x:Key="Text.EditBranchDescription.Target" xml:space="preserve">目标 ：</x:String>
   <x:String x:Key="Text.EditRepositoryNode.Bookmark" xml:space="preserve">书签 ：</x:String>
@@ -431,6 +439,7 @@
   <x:String x:Key="Text.Fetch.NoTags" xml:space="preserve">不拉取远程标签</x:String>
   <x:String x:Key="Text.Fetch.Remote" xml:space="preserve">远程仓库 ：</x:String>
   <x:String x:Key="Text.Fetch.Title" xml:space="preserve">拉取远程仓库内容</x:String>
+  <x:String x:Key="Text.FetchGroup.Title" xml:space="preserve">Fetch 所有仓库</x:String>
   <x:String x:Key="Text.File.Binary" xml:space="preserve">二进制文件</x:String>
   <x:String x:Key="Text.File.HexViewer" xml:space="preserve">查看内容</x:String>
   <x:String x:Key="Text.File.HexViewer.GotoAddress" xml:space="preserve">定位地址...</x:String>
@@ -751,6 +760,7 @@
   <x:String x:Key="Text.Pull.Remote" xml:space="preserve">远程 ：</x:String>
   <x:String x:Key="Text.Pull.Title" xml:space="preserve">拉回（拉取并合并）</x:String>
   <x:String x:Key="Text.Pull.UseRebase" xml:space="preserve">使用变基方式合并分支</x:String>
+  <x:String x:Key="Text.PullGroup.Title" xml:space="preserve">Pull 所有仓库</x:String>
   <x:String x:Key="Text.Push" xml:space="preserve">推送(push)</x:String>
   <x:String x:Key="Text.Push.CheckSubmodules" xml:space="preserve">确保子模块变更已推送</x:String>
   <x:String x:Key="Text.Push.Force" xml:space="preserve">启用强制推送</x:String>
@@ -764,6 +774,7 @@
   <x:String x:Key="Text.Push.To" xml:space="preserve">远程分支 ：</x:String>
   <x:String x:Key="Text.Push.Tracking" xml:space="preserve">跟踪远程分支</x:String>
   <x:String x:Key="Text.Push.WithAllTags" xml:space="preserve">同时推送标签</x:String>
+  <x:String x:Key="Text.PushGroup.Title" xml:space="preserve">Push 所有仓库</x:String>
   <x:String x:Key="Text.PushTag" xml:space="preserve">推送标签到远程仓库</x:String>
   <x:String x:Key="Text.PushTag.PushAllRemotes" xml:space="preserve">推送到所有远程仓库</x:String>
   <x:String x:Key="Text.PushTag.Remote" xml:space="preserve">远程仓库 ：</x:String>
@@ -872,6 +883,17 @@
   <x:String x:Key="Text.Repository.Worktrees" xml:space="preserve">工作树列表</x:String>
   <x:String x:Key="Text.Repository.Worktrees.Add" xml:space="preserve">新增工作树</x:String>
   <x:String x:Key="Text.Repository.Worktrees.Prune" xml:space="preserve">清理</x:String>
+  <x:String x:Key="Text.RepositoryGroup.AmendNotSupported" xml:space="preserve">仓库集合不支持 Amend，请切换到单仓库视图操作。</x:String>
+  <x:String x:Key="Text.RepositoryGroup.CommitBranchCheck" xml:space="preserve">跨仓库提交</x:String>
+  <x:String x:Key="Text.RepositoryGroup.CommitSkippedDetachedHead" xml:space="preserve">{0}：已跳过。集合提交不支持游离 HEAD。</x:String>
+  <x:String x:Key="Text.RepositoryGroup.CommitSkippedNothingStaged" xml:space="preserve">{0}：已跳过。没有已暂存的改动。</x:String>
+  <x:String x:Key="Text.RepositoryGroup.ConfirmBranchMismatch" xml:space="preserve">{0}&#10;&#10;涉及的仓库不在同名分支上：&#10;&#10;{1}&#10;&#10;仍要继续吗？</x:String>
+  <x:String x:Key="Text.RepositoryGroup.HasLocalChanges" xml:space="preserve">有本地改动</x:String>
+  <x:String x:Key="Text.RepositoryGroup.NoRemotes" xml:space="preserve">无远端</x:String>
+  <x:String x:Key="Text.RepositoryGroup.NothingToCommit" xml:space="preserve">集合中没有任何仓库有可提交的改动！</x:String>
+  <x:String x:Key="Text.RepositoryGroup.RemoteBranchInGroupUnsupported" xml:space="preserve">远程分支请在单仓库视图中操作。</x:String>
+  <x:String x:Key="Text.RepositoryGroup.StageBranchCheck" xml:space="preserve">跨仓库暂存文件</x:String>
+  <x:String x:Key="Text.RepositoryGroup.StashNotSupported" xml:space="preserve">仓库集合不支持 Stash，请切换到单仓库视图操作。</x:String>
   <x:String x:Key="Text.RepositoryURL" xml:space="preserve">远程仓库地址</x:String>
   <x:String x:Key="Text.Reset" xml:space="preserve">重置(reset)当前分支到指定版本</x:String>
   <x:String x:Key="Text.Reset.Mode" xml:space="preserve">重置模式 ：</x:String>
@@ -1022,6 +1044,7 @@
   <x:String x:Key="Text.Welcome.Edit" xml:space="preserve">编辑</x:String>
   <x:String x:Key="Text.Welcome.Move" xml:space="preserve">调整分组</x:String>
   <x:String x:Key="Text.Welcome.OpenAllInNode" xml:space="preserve">打开所有包含仓库</x:String>
+  <x:String x:Key="Text.Welcome.OpenAsCollection" xml:space="preserve">打开为仓库集合</x:String>
   <x:String x:Key="Text.Welcome.OpenOrInit" xml:space="preserve">打开本地仓库</x:String>
   <x:String x:Key="Text.Welcome.OpenTerminal" xml:space="preserve">打开终端</x:String>
   <x:String x:Key="Text.Welcome.ScanDefaultCloneDir" xml:space="preserve">重新扫描默认克隆路径下的仓库</x:String>

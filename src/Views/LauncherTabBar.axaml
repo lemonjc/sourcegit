@@ -72,8 +72,8 @@
                                     DragDrop.Drop="DropTab">
                 <ToolTip.Tip>
                   <Grid>
-                    <TextBlock Text="{DynamicResource Text.Welcome}" IsVisible="{Binding !Node.IsRepository}"/>
-                    <StackPanel Orientation="Horizontal" IsVisible="{Binding Node.IsRepository}">
+                    <TextBlock Text="{DynamicResource Text.Welcome}" IsVisible="{Binding IsWelcome}"/>
+                    <StackPanel Orientation="Horizontal" IsVisible="{Binding !IsWelcome}">
                       <TextBlock Text="{Binding Node.Id}"/>
                       <TextBlock Text="{Binding DirtyState, Converter={x:Static c:DirtyStateConverters.ToDesc}}"
                                  Foreground="{DynamicResource Brush.FG2}"/>
@@ -86,19 +86,19 @@
                               Width="12" Height="12"
                               Margin="12,0"
                               Value="{Binding Node.Bookmark, Mode=OneWay}"
-                              IsVisible="{Binding Node.IsRepository}"/>
+                              IsVisible="{Binding !IsWelcome}"/>
                   <Path Grid.Column="0"
                         Width="12" Height="12" Margin="12,0"
                         Fill="{DynamicResource Brush.FG1}"
                         Data="{StaticResource Icons.Repositories}"
-                        IsVisible="{Binding !Node.IsRepository}"
+                        IsVisible="{Binding IsWelcome}"
                         IsHitTestVisible="False"/>
 
                   <Grid Grid.Column="1"
                         HorizontalAlignment="Center" VerticalAlignment="Center"
                         ColumnDefinitions="Auto,*"
                         IsHitTestVisible="False"
-                        IsVisible="{Binding Node.IsRepository}">
+                        IsVisible="{Binding !IsWelcome}">
                     <Ellipse Grid.Column="0"
                              Width="8" Height="8"
                              Margin="0,0,6,0"
@@ -119,7 +119,7 @@
                              FontSize="{Binding Source={x:Static vm:Preferences.Instance}, Path=DefaultFontSize, Converter={x:Static c:DoubleConverters.Decrease}}"
                              TextAlignment="Center"
                              Text="{DynamicResource Text.PageTabBar.Welcome.Title}"
-                             IsVisible="{Binding !Node.IsRepository}"
+                             IsVisible="{Binding IsWelcome}"
                              IsHitTestVisible="False"/>
 
                   <Button Grid.Column="2"

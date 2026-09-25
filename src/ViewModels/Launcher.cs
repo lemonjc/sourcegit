@@ -173,12 +173,7 @@ namespace SourceGit.ViewModels
             var toIdx = Pages.IndexOf(to);
             Pages.Move(fromIdx, toIdx);
 
-            _activeWorkspace.Repositories.Clear();
-            foreach (var p in Pages)
-            {
-                if (p.Data is Repository r)
-                    _activeWorkspace.Repositories.Add(r.FullPath);
-            }
+            RebuildWorkspaceRepositories();
 
             _ignoreIndexChange = false;
             ActivePage = from;
@@ -310,6 +305,12 @@ namespace SourceGit.ViewModels
                 }
             }
 
+            if (!node.IsRepository)
+            {
+                OpenRepositoryGroupInTab(node, page);
+                return;
+            }
+
             if (!Directory.Exists(node.Id))
             {
                 ActivePage.Notifications.Add(new Models.Notification
@@ -342,7 +343,7 @@ namespace SourceGit.ViewModels
 
             if (page == null)
             {
-                if (_activePage == null || _activePage.Node.IsRepository)
+                if (_activePage == null || !_activePage.IsWelcome)
                 {
                     page = new LauncherPage(node, repo);
                     Pages.Add(page);
@@ -360,17 +361,66 @@ namespace SourceGit.ViewModels
                 page.Data = repo;
             }
 
-            _activeWorkspace.Repositories.Clear();
-            foreach (var p in Pages)
-            {
-                if (p.Data is Repository r)
-                    _activeWorkspace.Repositories.Add(r.FullPath);
-            }
+            RebuildWorkspaceRepositories();
 
             if (_activePage == page)
                 PostActivePageChanged();
             else
                 ActivePage = page;
+        }
+
+        public void OpenRepositoryGroupInTab(RepositoryNode node, LauncherPage page)
+        {
+            foreach (var one in Pages)
+            {
+                if (one.Node.Id == node.Id)
+                {
+                    ActivePage = one;
+                    return;
+                }
+            }
+
+            var group = new RepositoryGroup(node);
+            group.Open();
+
+            if (page == null)
+            {
+                if (_activePage == null || !_activePage.IsWelcome)
+                {
+                    page = new LauncherPage(node, group);
+                    Pages.Add(page);
+                }
+                else
+                {
+                    page = _activePage;
+                    page.Node = node;
+                    page.Data = group;
+                }
+            }
+            else
+            {
+                page.Node = node;
+                page.Data = group;
+            }
+
+            RebuildWorkspaceRepositories();
+
+            if (_activePage == page)
+                PostActivePageChanged();
+            else
+                ActivePage = page;
+        }
+
+        private void RebuildWorkspaceRepositories()
+        {
+            _activeWorkspace.Repositories.Clear();
+            foreach (var p in Pages)
+            {
+                if (p.Data is RepositoryGroup g)
+                    _activeWorkspace.Repositories.Add(g.FullPath);
+                else if (p.Data is Repository r)
+                    _activeWorkspace.Repositories.Add(r.FullPath);
+            }
         }
 
         public void OpenSubRepository(LauncherPage ownerPage, string fullpath)
@@ -463,10 +513,24 @@ namespace SourceGit.ViewModels
                 }
             }
 
+            // Notifications raised by child repositories of a group page.
+            foreach (var page in Pages)
+            {
+                if (page.Data is RepositoryGroup group && page.Node.Id != notification.Group)
+                {
+                    var child = group.FindChildByPath(notification.Group);
+                    if (child != null)
+                    {
+                        page.Notifications.Add(notification);
+                        return;
+                    }
+                }
+            }
+
             _activePage?.Notifications.Add(notification);
         }
 
-        private string GetRepositoryGitDir(string repo)
+        internal static string GetRepositoryGitDir(string repo)
         {
             var fullpath = Path.Combine(repo, ".git");
             if (Directory.Exists(fullpath))
@@ -499,7 +563,17 @@ namespace SourceGit.ViewModels
 
         private void CloseRepositoryInTab(LauncherPage page, bool removeFromWorkspace = true)
         {
-            if (page.Data is Repository repo)
+            var group = page.Data as RepositoryGroup ?? (page.Data as Repository)?.OwnerGroup;
+            if (group != null)
+            {
+                // The page belongs to a repository group (either showing the merged view or
+                // one of its child repositories). Close the whole group.
+                if (removeFromWorkspace)
+                    _activeWorkspace.Repositories.Remove(group.FullPath);
+
+                group.Close();
+            }
+            else if (page.Data is Repository repo)
             {
                 if (removeFromWorkspace)
                     _activeWorkspace.Repositories.Remove(repo.FullPath);

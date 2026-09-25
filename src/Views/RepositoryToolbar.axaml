@@ -10,7 +10,7 @@
              x:DataType="vm:Repository">
   <Grid ColumnDefinitions="*,Auto,0,*">
     <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="4,0,0,0">
-      <Button Classes="icon_button" Width="32" Click="OpenWithExternalTools" ToolTip.Tip="{DynamicResource Text.Repository.OpenWithExternalTools}">
+      <Button Classes="icon_button" Width="32" Click="OpenWithExternalTools" IsVisible="{Binding !IsRepositoryGroup}" ToolTip.Tip="{DynamicResource Text.Repository.OpenWithExternalTools}">
         <Path Width="14" Height="14" Data="{StaticResource Icons.OpenWith}"/>
       </Button>
 
@@ -18,7 +18,7 @@
         <Path Width="14" Height="14" Margin="0,1,0,0" Data="{StaticResource Icons.Logs}"/>
       </Button>
 
-      <Button Classes="icon_button" Width="32" Click="OpenStatistics" ToolTip.Tip="{DynamicResource Text.Repository.Statistics}">
+      <Button Classes="icon_button" Width="32" Click="OpenStatistics" IsVisible="{Binding !IsRepositoryGroup}" ToolTip.Tip="{DynamicResource Text.Repository.Statistics}">
         <Path Width="13" Height="13" Margin="0,1.5,0,0" Data="{StaticResource Icons.Statistics}"/>
       </Button>
     </StackPanel>
@@ -69,7 +69,13 @@
         </Grid>
       </Button>
 
-      <Button Classes="icon_button" Width="32" Margin="16,0,0,0" Tapped="StashAll" IsVisible="{Binding !IsBare}">
+      <Button Classes="icon_button" Width="32" Margin="16,0,0,0" Tapped="StashAll">
+        <Button.IsVisible>
+          <MultiBinding Converter="{x:Static BoolConverters.And}">
+            <Binding Path="!IsBare"/>
+            <Binding Path="!IsRepositoryGroup"/>
+          </MultiBinding>
+        </Button.IsVisible>
         <ToolTip.Tip>
           <StackPanel Orientation="Vertical">
             <TextBlock Text="{DynamicResource Text.Stash}"/>
@@ -80,7 +86,13 @@
         <Path Width="14" Height="14" Data="{StaticResource Icons.Stashes.Add}"/>
       </Button>
 
-      <Button Classes="icon_button" Width="32" Margin="16,0,0,0" Command="{Binding ApplyPatch}" IsVisible="{Binding !IsBare}" ToolTip.Tip="{DynamicResource Text.Apply.Title}">
+      <Button Classes="icon_button" Width="32" Margin="16,0,0,0" Command="{Binding ApplyPatch}" ToolTip.Tip="{DynamicResource Text.Apply.Title}">
+        <Button.IsVisible>
+          <MultiBinding Converter="{x:Static BoolConverters.And}">
+            <Binding Path="!IsBare"/>
+            <Binding Path="!IsRepositoryGroup"/>
+          </MultiBinding>
+        </Button.IsVisible>
         <Path Width="14" Height="14" Data="{StaticResource Icons.ApplyPatch}"/>
       </Button>
 
@@ -100,23 +112,41 @@
         <Path Width="14" Height="14" Data="{StaticResource Icons.Branch.Add}"/>
       </Button>
 
-      <Button Classes="icon_button" Width="32" Margin="12,0,0,0" Click="OpenGitFlowMenu" IsVisible="{Binding !IsBare}" ToolTip.Tip="{DynamicResource Text.GitFlow}">
+      <Button Classes="icon_button" Width="32" Margin="12,0,0,0" Click="OpenGitFlowMenu" ToolTip.Tip="{DynamicResource Text.GitFlow}">
+        <Button.IsVisible>
+          <MultiBinding Converter="{x:Static BoolConverters.And}">
+            <Binding Path="!IsBare"/>
+            <Binding Path="!IsRepositoryGroup"/>
+          </MultiBinding>
+        </Button.IsVisible>
         <Path Width="14" Height="14" Data="{StaticResource Icons.GitFlow}"/>
       </Button>
 
-      <Button Classes="icon_button" Width="32" Margin="12,0,0,0" Click="OpenGitLFSMenu" IsVisible="{Binding !IsBare}" ToolTip.Tip="{DynamicResource Text.GitLFS}">
+      <Button Classes="icon_button" Width="32" Margin="12,0,0,0" Click="OpenGitLFSMenu" ToolTip.Tip="{DynamicResource Text.GitLFS}">
+        <Button.IsVisible>
+          <MultiBinding Converter="{x:Static BoolConverters.And}">
+            <Binding Path="!IsBare"/>
+            <Binding Path="!IsRepositoryGroup"/>
+          </MultiBinding>
+        </Button.IsVisible>
         <Path Width="14" Height="14" Data="{StaticResource Icons.LFS}"/>
       </Button>
 
-      <Button Classes="icon_button" Width="32" Margin="12,0,0,0" Click="StartBisect" IsVisible="{Binding !IsBare}" ToolTip.Tip="{DynamicResource Text.Bisect}">
+      <Button Classes="icon_button" Width="32" Margin="12,0,0,0" Click="StartBisect" ToolTip.Tip="{DynamicResource Text.Bisect}">
+        <Button.IsVisible>
+          <MultiBinding Converter="{x:Static BoolConverters.And}">
+            <Binding Path="!IsBare"/>
+            <Binding Path="!IsRepositoryGroup"/>
+          </MultiBinding>
+        </Button.IsVisible>
         <Path Width="14" Height="14" Data="{StaticResource Icons.Bisect}"/>
       </Button>
 
-      <Button Classes="icon_button" Width="32" Margin="12,0,0,0" Click="OpenCustomActionMenu" ToolTip.Tip="{DynamicResource Text.Repository.CustomActions}">
+      <Button Classes="icon_button" Width="32" Margin="12,0,0,0" Click="OpenCustomActionMenu" IsVisible="{Binding !IsRepositoryGroup}" ToolTip.Tip="{DynamicResource Text.Repository.CustomActions}">
         <Path Width="14" Height="14" Data="{StaticResource Icons.Action}"/>
       </Button>
 
-      <Button Classes="icon_button" Width="32" Margin="12,0,0,0" Click="Cleanup" ToolTip.Tip="{DynamicResource Text.Repository.Clean}">
+      <Button Classes="icon_button" Width="32" Margin="12,0,0,0" Click="Cleanup" IsVisible="{Binding !IsRepositoryGroup}" ToolTip.Tip="{DynamicResource Text.Repository.Clean}">
         <Path Width="14" Height="14" Margin="0,1,0,0" Data="{StaticResource Icons.Clean}"/>
       </Button>
     </StackPanel>

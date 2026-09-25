@@ -528,6 +528,11 @@ namespace SourceGit.Views
                 var menu = branch.IsLocal ? CreateContextMenuForLocalBranch(repo, branch) : CreateContextMenuForRemoteBranch(repo, branch);
                 menu.Open(this);
             }
+            else if (repo is ViewModels.RepositoryGroup)
+            {
+                // Multi-branch operations are not supported in group mode.
+                return;
+            }
             else
             {
                 var menu = new ContextMenu();
@@ -702,6 +707,9 @@ namespace SourceGit.Views
 
         private ContextMenu CreateContextMenuForLocalBranch(ViewModels.Repository repo, Models.Branch branch)
         {
+            if (repo is ViewModels.RepositoryGroup group)
+                return CreateContextMenuForLocalBranchInGroup(group, branch);
+
             var current = repo.CurrentBranch;
             var menu = new ContextMenu();
             var upstream = !string.IsNullOrEmpty(branch.Upstream) ? repo.Branches.Find(x => x.FullName.Equals(branch.Upstream, StringComparison.Ordinal)) : null;
@@ -1081,6 +1089,46 @@ namespace SourceGit.Views
                 e.Handled = true;
             };
             menu.Items.Add(archive);
+            menu.Items.Add(new MenuItem() { Header = "-" });
+
+            var copy = new MenuItem();
+            copy.Header = App.Text("BranchCM.CopyName");
+            copy.Icon = this.CreateMenuIcon("Icons.Copy");
+            copy.Click += async (_, e) =>
+            {
+                await this.CopyTextAsync(branch.Name);
+                e.Handled = true;
+            };
+            menu.Items.Add(copy);
+
+            return menu;
+        }
+
+        private ContextMenu CreateContextMenuForLocalBranchInGroup(ViewModels.RepositoryGroup group, Models.Branch branch)
+        {
+            var menu = new ContextMenu();
+
+            var checkout = new MenuItem();
+            checkout.Header = App.Text("CheckoutGroup.Title");
+            checkout.Icon = this.CreateMenuIcon("Icons.Check");
+            checkout.IsEnabled = !branch.IsCurrent;
+            checkout.Click += async (_, e) =>
+            {
+                await group.CheckoutBranchInAllRepositoriesAsync(branch.Name);
+                e.Handled = true;
+            };
+            menu.Items.Add(checkout);
+
+            var create = new MenuItem();
+            create.Header = App.Text("CreateBranchGroup.Title");
+            create.Icon = this.CreateMenuIcon("Icons.Branch.Add");
+            create.Click += (_, e) =>
+            {
+                group.CreateNewBranch();
+                e.Handled = true;
+            };
+            menu.Items.Add(create);
+
             menu.Items.Add(new MenuItem() { Header = "-" });
 
             var copy = new MenuItem();

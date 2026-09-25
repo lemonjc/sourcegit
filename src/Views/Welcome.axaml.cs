@@ -190,8 +190,27 @@ namespace SourceGit.Views
                             e.Handled = true;
                         };
 
-                        menu.Items.Add(openAll);
-                        menu.Items.Add(new MenuItem() { Header = "-" });
+                        var hasRepo = HasRepositoryDescendant(node);
+                        if (hasRepo)
+                        {
+                            var openAsCollection = new MenuItem();
+                            openAsCollection.Header = App.Text("Welcome.OpenAsCollection");
+                            openAsCollection.Icon = this.CreateMenuIcon("Icons.Dashboard");
+                            openAsCollection.Click += (_, e) =>
+                            {
+                                node.OpenAsCollection();
+                                e.Handled = true;
+                            };
+
+                            menu.Items.Add(openAll);
+                            menu.Items.Add(openAsCollection);
+                            menu.Items.Add(new MenuItem() { Header = "-" });
+                        }
+                        else
+                        {
+                            menu.Items.Add(openAll);
+                            menu.Items.Add(new MenuItem() { Header = "-" });
+                        }
                     }
 
                     var addSubFolder = new MenuItem();
@@ -421,6 +440,17 @@ namespace SourceGit.Views
 
                 e.Handled = true;
             }
+        }
+
+        private bool HasRepositoryDescendant(ViewModels.RepositoryNode node)
+        {
+            foreach (var sub in node.SubNodes)
+            {
+                if (sub.IsRepository || HasRepositoryDescendant(sub))
+                    return true;
+            }
+
+            return false;
         }
 
         private PointerPressedEventArgs _pressTreeNodeEvent = null;

@@ -10,14 +10,24 @@ namespace SourceGit.ViewModels
         public RepositoryNode Node
         {
             get => _node;
-            set => SetProperty(ref _node, value);
+            set
+            {
+                if (SetProperty(ref _node, value))
+                    OnPropertyChanged(nameof(IsWelcome));
+            }
         }
 
         public object Data
         {
             get => _data;
-            set => SetProperty(ref _data, value);
+            set
+            {
+                if (SetProperty(ref _data, value))
+                    OnPropertyChanged(nameof(IsWelcome));
+            }
         }
+
+        public bool IsWelcome => _data is not Repository;
 
         public Models.DirtyState DirtyState
         {

@@ -127,6 +127,25 @@ namespace SourceGit.Views
             e.Handled = true;
         }
 
+        private void OnGroupHomeClicked(object sender, PointerPressedEventArgs e)
+        {
+            if (DataContext is ViewModels.Repository { OwnerGroup: { } group })
+                group.FocusGroupHome();
+
+            e.Handled = true;
+        }
+
+        private void OnGroupChildClicked(object sender, PointerPressedEventArgs e)
+        {
+            if (sender is Border { DataContext: ViewModels.RepositoryGroupChild child } &&
+                DataContext is ViewModels.Repository { OwnerGroup: { } group })
+            {
+                group.FocusChild(child);
+            }
+
+            e.Handled = true;
+        }
+
         private void OnLocalBranchTreeSelectionChanged(object _1, RoutedEventArgs _2)
         {
             RemoteBranchTree.UnselectAll();
@@ -250,20 +269,38 @@ namespace SourceGit.Views
             if (DataContext is not ViewModels.Repository { UIStates: { } } vm)
                 return;
 
-            var leftHeight = LeftSidebarGroups.Bounds.Height - 28.0 * 5 - 4;
+            var isGroup = vm.IsRepositoryGroup;
+            var leftHeight = LeftSidebarGroups.Bounds.Height - 4;
+            if (isGroup)
+            {
+                // Only the repository group section (root + children) and the local
+                // branches group are visible in group mode.
+                leftHeight -= 28.0 + 24.0;
+
+                if (vm is ViewModels.RepositoryGroup group)
+                {
+                    foreach (var _ in group.Children)
+                        leftHeight -= 24.0;
+                }
+            }
+            else
+            {
+                leftHeight -= 28.0 * 5;
+            }
+
             if (leftHeight <= 0)
                 return;
 
             var localBranchRows = vm.IsLocalBranchGroupExpanded ? LocalBranchTree.Rows.Count : 0;
-            var remoteBranchRows = vm.IsRemoteGroupExpanded ? RemoteBranchTree.Rows.Count : 0;
+            var remoteBranchRows = !isGroup && vm.IsRemoteGroupExpanded ? RemoteBranchTree.Rows.Count : 0;
             var desiredBranches = (localBranchRows + remoteBranchRows) * 24.0;
-            var desiredTag = vm.IsTagGroupExpanded ? 24.0 * TagsList.Rows : 0;
-            var desiredSubmodule = vm.IsSubmoduleGroupExpanded ? 24.0 * SubmoduleList.Rows : 0;
-            var desiredWorktree = vm.IsWorktreeGroupExpanded ? 24.0 * vm.Worktrees.Count : 0;
+            var desiredTag = !isGroup && vm.IsTagGroupExpanded ? 24.0 * TagsList.Rows : 0;
+            var desiredSubmodule = !isGroup && vm.IsSubmoduleGroupExpanded ? 24.0 * SubmoduleList.Rows : 0;
+            var desiredWorktree = !isGroup && vm.IsWorktreeGroupExpanded ? 24.0 * vm.Worktrees.Count : 0;
             var desiredOthers = desiredTag + desiredSubmodule + desiredWorktree;
             var hasOverflow = (desiredBranches + desiredOthers > leftHeight);
 
-            if (vm.IsWorktreeGroupExpanded)
+            if (!isGroup && vm.IsWorktreeGroupExpanded)
             {
                 var height = desiredWorktree;
                 if (hasOverflow)
@@ -280,7 +317,7 @@ namespace SourceGit.Views
                 hasOverflow = (desiredBranches + desiredTag + desiredSubmodule) > leftHeight;
             }
 
-            if (vm.IsSubmoduleGroupExpanded)
+            if (!isGroup && vm.IsSubmoduleGroupExpanded)
             {
                 var height = desiredSubmodule;
                 if (hasOverflow)
@@ -297,7 +334,7 @@ namespace SourceGit.Views
                 hasOverflow = (desiredBranches + desiredTag) > leftHeight;
             }
 
-            if (vm.IsTagGroupExpanded)
+            if (!isGroup && vm.IsTagGroupExpanded)
             {
                 var height = desiredTag;
                 if (hasOverflow)

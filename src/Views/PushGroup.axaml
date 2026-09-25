@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:SourceGit.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="520" d:DesignHeight="450"
+             x:Class="SourceGit.Views.PushGroup"
+             x:DataType="vm:PushGroup">
+  <StackPanel Orientation="Vertical" Margin="8,0">
+    <StackPanel Orientation="Horizontal">
+      <Path Width="16" Height="16" Data="{StaticResource Icons.Push}"/>
+      <TextBlock FontSize="18" Margin="8,0,0,0" Classes="bold" Text="{DynamicResource Text.PushGroup.Title}"/>
+    </StackPanel>
+
+    <CheckBox Margin="0,12,0,0"
+              Content="{DynamicResource Text.Push.WithAllTags}"
+              IsChecked="{Binding PushAllTags, Mode=TwoWay}"
+              ToolTip.Tip="--tags"/>
+
+    <ScrollViewer Margin="0,8,0,0" MaxHeight="280">
+      <ItemsControl ItemsSource="{Binding Repositories, Mode=OneWay}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate DataType="vm:PushGroupRepository">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto" Height="26">
+              <CheckBox Grid.Column="0"
+                        MinWidth="0"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        IsChecked="{Binding IsEnabled, Mode=TwoWay}"/>
+              <Path Grid.Column="1" Width="14" Height="14" VerticalAlignment="Center" Data="{StaticResource Icons.Branch}"/>
+              <TextBlock Grid.Column="2" Margin="6,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Current.Name, Mode=OneWay}"/>
+              <TextBlock Grid.Column="3" Classes="info_label" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding TargetDescription, Mode=OneWay}"/>
+            </Grid>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </StackPanel>
+</UserControl>

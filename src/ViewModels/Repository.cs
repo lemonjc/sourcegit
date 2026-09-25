@@ -12,21 +12,50 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SourceGit.ViewModels
 {
+    public enum RepositoryDataChange
+    {
+        Branches,
+        Commits,
+        WorkingCopy,
+        Stashes,
+    }
+
     public class Repository : ObservableObject, Models.IRepository
     {
         public bool IsBare
         {
             get;
+            protected set;
         }
 
         public string FullPath
         {
             get;
+            protected set;
         }
 
         public string GitDir
         {
             get;
+            protected set;
+        }
+
+        public RepositoryGroup OwnerGroup
+        {
+            get;
+            internal set;
+        } = null;
+
+        public bool IsRepositoryGroup
+        {
+            get;
+            protected set;
+        } = false;
+
+        public bool IsRepositoryGroupSectionExpanded
+        {
+            get => _isRepositoryGroupSectionExpanded;
+            set => SetProperty(ref _isRepositoryGroupSectionExpanded, value);
         }
 
         public Models.RepositorySettings Settings
@@ -86,16 +115,19 @@ namespace SourceGit.ViewModels
         public Histories Histories
         {
             get => _histories;
+            protected set => _histories = value;
         }
 
         public WorkingCopy WorkingCopy
         {
             get => _workingCopy;
+            protected set => _workingCopy = value;
         }
 
         public StashesPage StashesPage
         {
             get => _stashesPage;
+            protected set => _stashesPage = value;
         }
 
         public bool IsDashboardVisible
@@ -132,7 +164,7 @@ namespace SourceGit.ViewModels
         public List<Models.Remote> Remotes
         {
             get => _remotes;
-            private set
+            protected set
             {
                 if (SetProperty(ref _remotes, value))
                 {
@@ -145,13 +177,13 @@ namespace SourceGit.ViewModels
         public List<Models.Branch> Branches
         {
             get => _branches;
-            private set => SetProperty(ref _branches, value);
+            protected set => SetProperty(ref _branches, value);
         }
 
         public Models.Branch CurrentBranch
         {
             get => _currentBranch;
-            private set
+            protected set
             {
                 var oldHead = _currentBranch?.Head;
                 if (SetProperty(ref _currentBranch, value))
@@ -168,13 +200,13 @@ namespace SourceGit.ViewModels
         public List<BranchTreeNode> LocalBranchTrees
         {
             get => _localBranchTrees;
-            private set => SetProperty(ref _localBranchTrees, value);
+            protected set => SetProperty(ref _localBranchTrees, value);
         }
 
         public List<BranchTreeNode> RemoteBranchTrees
         {
             get => _remoteBranchTrees;
-            private set => SetProperty(ref _remoteBranchTrees, value);
+            protected set => SetProperty(ref _remoteBranchTrees, value);
         }
 
         public List<Worktree> Worktrees
@@ -238,22 +270,22 @@ namespace SourceGit.ViewModels
         public int LocalChangesCount
         {
             get => _localChangesCount;
-            private set => SetProperty(ref _localChangesCount, value);
+            protected set => SetProperty(ref _localChangesCount, value);
         }
 
         public int StashesCount
         {
             get => _stashesCount;
-            private set => SetProperty(ref _stashesCount, value);
+            protected set => SetProperty(ref _stashesCount, value);
         }
 
         public int LocalBranchesCount
         {
             get => _localBranchesCount;
-            private set => SetProperty(ref _localBranchesCount, value);
+            protected set => SetProperty(ref _localBranchesCount, value);
         }
 
-        public bool IncludeUntracked
+        public virtual bool IncludeUntracked
         {
             get => _uiStates.IncludeUntrackedInLocalChanges;
             set
@@ -415,7 +447,7 @@ namespace SourceGit.ViewModels
             FullPath = path.Replace('\\', '/').TrimEnd('/');
             GitDir = gitDir.Replace('\\', '/').TrimEnd('/');
 
-            var commonDirFile = Path.Combine(GitDir, "commondir");
+            var commonDirFile = Path.Combine(GitDir, "comdir");
             var isWorktree = GitDir.IndexOf("/worktrees/", StringComparison.Ordinal) > 0 &&
                           File.Exists(commonDirFile);
 
@@ -438,7 +470,22 @@ namespace SourceGit.ViewModels
             _uiStates = Models.RepositoryUIStates.Load(GitDir);
         }
 
-        public void Open()
+        protected Repository()
+        {
+            // Only used by RepositoryGroup, which is a virtual repository aggregating
+            // multiple real child repositories. FullPath/GitDir are assigned by the subclass.
+            _settings = new Models.RepositorySettings();
+            _uiStates = new Models.RepositoryUIStates();
+        }
+
+        internal event Action<Repository, RepositoryDataChange> DataChanged;
+
+        internal void RaiseDataChanged(RepositoryDataChange change)
+        {
+            DataChanged?.Invoke(this, change);
+        }
+
+        public virtual void Open()
         {
             try
             {
@@ -459,7 +506,7 @@ namespace SourceGit.ViewModels
             RefreshAll();
         }
 
-        public void Close()
+        public virtual void Close()
         {
             var commitMessage = _workingCopy.CommitMessage;
             if (!string.IsNullOrEmpty(commitMessage) && _workingCopy.InProgressContext != null)
@@ -623,7 +670,7 @@ namespace SourceGit.ViewModels
             return Path.Combine(parentFolder, dirName);
         }
 
-        public void RefreshAll()
+        public virtual void RefreshAll()
         {
             RefreshCommits();
             RefreshBranches();
@@ -650,7 +697,7 @@ namespace SourceGit.ViewModels
             });
         }
 
-        public async Task FetchAsync(bool autoStart)
+        public virtual async Task FetchAsync(bool autoStart)
         {
             if (!CanCreatePopup())
                 return;
@@ -667,7 +714,7 @@ namespace SourceGit.ViewModels
                 ShowPopup(new Fetch(this));
         }
 
-        public async Task PullAsync(bool autoStart)
+        public virtual async Task PullAsync(bool autoStart)
         {
             if (IsBare || !CanCreatePopup())
                 return;
@@ -691,7 +738,7 @@ namespace SourceGit.ViewModels
                 ShowPopup(pull);
         }
 
-        public async Task PushAsync(bool autoStart)
+        public virtual async Task PushAsync(bool autoStart)
         {
             if (!CanCreatePopup())
                 return;
@@ -743,12 +790,12 @@ namespace SourceGit.ViewModels
             Filter = string.Empty;
         }
 
-        public IDisposable LockWatcher()
+        public virtual IDisposable LockWatcher()
         {
             return _watcher?.Lock();
         }
 
-        public void RefreshAfterCreateBranch(Models.Branch created, bool checkout)
+        public virtual void RefreshAfterCreateBranch(Models.Branch created, bool checkout)
         {
             _watcher?.MarkBranchUpdated();
 
@@ -796,12 +843,14 @@ namespace SourceGit.ViewModels
             LocalBranchTrees = builder.Locals;
             LocalBranchesCount = count;
 
+            RaiseDataChanged(RepositoryDataChange.Branches);
+
             RefreshCommits();
             RefreshWorkingCopyChanges();
             RefreshWorktrees();
         }
 
-        public void RefreshAfterCheckoutBranch(Models.Branch checkouted)
+        public virtual void RefreshAfterCheckoutBranch(Models.Branch checkouted)
         {
             _watcher?.MarkBranchUpdated();
 
@@ -831,6 +880,8 @@ namespace SourceGit.ViewModels
             LocalBranchTrees = builder.Locals;
             CurrentBranch = checkouted;
             GetOwnerPage()?.ChangeDirtyState(Models.DirtyState.HasPendingPullOrPush, !checkouted.IsTrackStatusVisible);
+
+            RaiseDataChanged(RepositoryDataChange.Branches);
 
             RefreshCommits();
             RefreshWorkingCopyChanges();
@@ -877,11 +928,13 @@ namespace SourceGit.ViewModels
             var builder = BuildBranchTree(locals, [], false);
             LocalBranchTrees = builder.Locals;
 
+            RaiseDataChanged(RepositoryDataChange.Branches);
+
             RefreshCommits();
             RefreshWorktrees();
         }
 
-        public void MarkBranchesDirtyManually()
+        public virtual void MarkBranchesDirtyManually()
         {
             _watcher?.MarkBranchUpdated();
             RefreshBranches();
@@ -897,7 +950,7 @@ namespace SourceGit.ViewModels
             RefreshCommits();
         }
 
-        public void MarkWorkingCopyDirtyManually()
+        public virtual void MarkWorkingCopyDirtyManually()
         {
             _watcher?.MarkWorkingCopyUpdated();
             RefreshWorkingCopyChanges();
@@ -920,7 +973,7 @@ namespace SourceGit.ViewModels
             _lastFetchTime = DateTime.Now;
         }
 
-        public void NavigateToCommit(string sha, bool isDelayMode = false)
+        public virtual void NavigateToCommit(string sha, bool isDelayMode = false)
         {
             if (isDelayMode)
             {
@@ -1051,7 +1104,7 @@ namespace SourceGit.ViewModels
             RefreshHistoryFilters(refresh);
         }
 
-        public async Task StashAllAsync(bool autoStart)
+        public virtual async Task StashAllAsync(bool autoStart)
         {
             if (!CanCreatePopup())
                 return;
@@ -1131,7 +1184,7 @@ namespace SourceGit.ViewModels
             return info.Exists && info.Length > 20;
         }
 
-        public void RefreshBranches()
+        public virtual void RefreshBranches()
         {
             if (_cancellationRefreshBranches is { IsCancellationRequested: false })
                 _cancellationRefreshBranches.Cancel();
@@ -1171,11 +1224,13 @@ namespace SourceGit.ViewModels
 
                     var hasPendingPullOrPush = CurrentBranch?.IsTrackStatusVisible ?? false;
                     GetOwnerPage()?.ChangeDirtyState(Models.DirtyState.HasPendingPullOrPush, !hasPendingPullOrPush);
+
+                    RaiseDataChanged(RepositoryDataChange.Branches);
                 });
             }, token);
         }
 
-        public void RefreshWorktrees()
+        public virtual void RefreshWorktrees()
         {
             Task.Run(async () =>
             {
@@ -1185,7 +1240,7 @@ namespace SourceGit.ViewModels
             });
         }
 
-        public void RefreshTags()
+        public virtual void RefreshTags()
         {
             if (_cancellationRefreshTags is { IsCancellationRequested: false })
                 _cancellationRefreshTags.Cancel();
@@ -1208,7 +1263,7 @@ namespace SourceGit.ViewModels
             }, token);
         }
 
-        public void RefreshCommits()
+        public virtual void RefreshCommits()
         {
             if (_cancellationRefreshCommits is { IsCancellationRequested: false })
                 _cancellationRefreshCommits.Cancel();
@@ -1258,11 +1313,13 @@ namespace SourceGit.ViewModels
                     }
 
                     _navigateToCommitDelayed = string.Empty;
+
+                    RaiseDataChanged(RepositoryDataChange.Commits);
                 });
             }, token);
         }
 
-        public void RefreshSubmodules()
+        public virtual void RefreshSubmodules()
         {
             if (!MayHaveSubmodules())
             {
@@ -1318,7 +1375,7 @@ namespace SourceGit.ViewModels
             });
         }
 
-        public void RefreshWorkingCopyChanges()
+        public virtual void RefreshWorkingCopyChanges()
         {
             if (IsBare)
                 return;
@@ -1348,11 +1405,13 @@ namespace SourceGit.ViewModels
                     LocalChangesCount = changes.Count;
                     OnPropertyChanged(nameof(InProgressContext));
                     GetOwnerPage()?.ChangeDirtyState(Models.DirtyState.HasLocalChanges, changes.Count == 0);
+
+                    RaiseDataChanged(RepositoryDataChange.WorkingCopy);
                 });
             }, token);
         }
 
-        public void RefreshStashes()
+        public virtual void RefreshStashes()
         {
             if (IsBare)
                 return;
@@ -1375,11 +1434,13 @@ namespace SourceGit.ViewModels
                         _stashesPage.Stashes = stashes;
 
                     StashesCount = stashes.Count;
+
+                    RaiseDataChanged(RepositoryDataChange.Stashes);
                 });
             }, token);
         }
 
-        public void CreateNewBranch()
+        public virtual void CreateNewBranch()
         {
             if (_currentBranch == null)
             {
@@ -1391,7 +1452,7 @@ namespace SourceGit.ViewModels
                 ShowPopup(new CreateBranch(this, _currentBranch));
         }
 
-        public async Task CheckoutBranchAsync(Models.Branch branch)
+        public virtual async Task CheckoutBranchAsync(Models.Branch branch)
         {
             if (branch.IsLocal)
             {
@@ -1647,7 +1708,7 @@ namespace SourceGit.ViewModels
             return succ;
         }
 
-        private LauncherPage GetOwnerPage()
+        protected virtual LauncherPage GetOwnerPage()
         {
             var launcher = App.GetLauncher();
             if (launcher == null)
@@ -1655,14 +1716,17 @@ namespace SourceGit.ViewModels
 
             foreach (var page in launcher.Pages)
             {
-                if (page.Node.Id.Equals(FullPath))
+                if (page.Node.Id.Equals(FullPath, StringComparison.Ordinal) || ReferenceEquals(page.Data, this))
+                    return page;
+
+                if (page.Data is RepositoryGroup group && group.HasRepository(this))
                     return page;
             }
 
             return null;
         }
 
-        private BranchTreeNode.Builder BuildBranchTree(List<Models.Branch> branches, List<Models.Remote> remotes, bool validateExpandedNodes = true)
+        protected BranchTreeNode.Builder BuildBranchTree(List<Models.Branch> branches, List<Models.Remote> remotes, bool validateExpandedNodes = true)
         {
             var builder = new BranchTreeNode.Builder(_uiStates.LocalBranchSortMode, _uiStates.RemoteBranchSortMode);
             if (string.IsNullOrEmpty(_filter))
@@ -1945,12 +2009,13 @@ namespace SourceGit.ViewModels
         private Models.FilterMode _historyFilterMode = Models.FilterMode.None;
         private bool _hasAllowedSignersFile = false;
         private ulong _queryLocalChangesTimes = 0;
+        private bool _isRepositoryGroupSectionExpanded = true;
 
         private Models.Watcher _watcher = null;
         private Histories _histories = null;
         private WorkingCopy _workingCopy = null;
         private StashesPage _stashesPage = null;
-        private int _selectedViewIndex = 0;
+        protected int _selectedViewIndex = 0;
 
         private int _localBranchesCount = 0;
         private int _localChangesCount = 0;
