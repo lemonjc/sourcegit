@@ -3,6 +3,7 @@
     public enum DecoratorType
     {
         None,
+        Repository,
         CurrentBranchHead,
         LocalBranchHead,
         CurrentCommitHead,

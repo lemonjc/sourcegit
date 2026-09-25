@@ -26,6 +26,7 @@ namespace SourceGit.Views
             _branch = LoadIcon("Icons.Branch");
             _remote = LoadIcon("Icons.Remote");
             _tag = LoadIcon("Icons.Tag");
+            _repository = LoadIcon("Icons.Repositories");
         }
 
         public Geometry GetIcon(Models.DecoratorType type)
@@ -37,6 +38,7 @@ namespace SourceGit.Views
                 Models.DecoratorType.LocalBranchHead => _branch,
                 Models.DecoratorType.RemoteBranchHead => _remote,
                 Models.DecoratorType.Tag => _tag,
+                Models.DecoratorType.Repository => _repository,
                 _ => null,
             };
         }
@@ -62,6 +64,7 @@ namespace SourceGit.Views
         private Geometry _branch = null;
         private Geometry _remote = null;
         private Geometry _tag = null;
+        private Geometry _repository = null;
     }
 
     public class CommitRefsPresenter : Control
@@ -314,7 +317,12 @@ namespace SourceGit.Views
                 var item = new RenderItem()
                 {
                     Decorator = decorator,
-                    Brush = decorator.Type == Models.DecoratorType.Tag ? Brushes.Gray : normalBG,
+                    Brush = decorator.Type switch
+                    {
+                        Models.DecoratorType.Tag => Brushes.Gray,
+                        Models.DecoratorType.Repository => Brushes.RoyalBlue,
+                        _ => normalBG,
+                    },
                     IsHead = decorator.Type is Models.DecoratorType.CurrentBranchHead or Models.DecoratorType.CurrentCommitHead,
                 };
                 _items.Add(item);

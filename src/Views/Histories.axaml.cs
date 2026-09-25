@@ -1054,6 +1054,19 @@ namespace SourceGit.Views
         {
             var current = repo.CurrentBranch;
             var vm = DataContext as ViewModels.Histories;
+
+            // In group mode, route branch/tag related menu actions to the child
+            // repository that owns the clicked commit.
+            if (vm is ViewModels.GroupHistories groupHistories)
+            {
+                var owner = groupHistories.FindOwner(commit);
+                if (owner != null)
+                {
+                    repo = owner;
+                    current = owner.CurrentBranch;
+                }
+            }
+
             if (current == null || vm == null)
                 return null;
 

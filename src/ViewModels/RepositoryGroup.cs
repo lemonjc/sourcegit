@@ -579,19 +579,22 @@ namespace SourceGit.ViewModels
         {
             var merged = new List<Models.Commit>();
             var shaToRepo = new Dictionary<string, Repository>();
+            var repoNames = new Dictionary<Repository, string>();
 
-            foreach (var repo in _repositories)
+            foreach (var child in Children)
             {
-                foreach (var commit in repo.Histories.Commits)
+                repoNames.Add(child.Repo, child.Name);
+
+                foreach (var commit in child.Repo.Histories.Commits)
                 {
                     merged.Add(commit);
                     if (!shaToRepo.ContainsKey(commit.SHA))
-                        shaToRepo.Add(commit.SHA, repo);
+                        shaToRepo.Add(commit.SHA, child.Repo);
                 }
             }
 
             merged.Sort((l, r) => r.CommitterTime.CompareTo(l.CommitterTime));
-            (Histories as GroupHistories)?.SetMergedCommits(merged, shaToRepo);
+            (Histories as GroupHistories)?.SetMergedCommits(merged, shaToRepo, repoNames);
         }
 
         private void RebuildWorkingCopy()

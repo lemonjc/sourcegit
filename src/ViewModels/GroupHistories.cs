@@ -18,14 +18,52 @@ namespace SourceGit.ViewModels
         {
         }
 
-        public void SetMergedCommits(List<Models.Commit> commits, Dictionary<string, Repository> shaToRepo)
+        public void SetMergedCommits(List<Models.Commit> commits, Dictionary<string, Repository> shaToRepo, Dictionary<Repository, string> repoNames)
         {
             _shaToRepo.Clear();
             foreach (var kv in shaToRepo)
                 _shaToRepo.Add(kv.Key, kv.Value);
 
+            // Clone each commit and prepend a repository decorator, so that the merged
+            // history clearly shows which child repository owns the commit. The child
+            // repositories keep sharing their original (untouched) commit instances.
+            var cloned = new List<Models.Commit>(commits.Count);
+            foreach (var commit in commits)
+            {
+                var repo = shaToRepo.TryGetValue(commit.SHA, out var owner) ? owner : null;
+                var repoName = repo != null && repoNames.TryGetValue(repo, out var name) ? name : null;
+                cloned.Add(CloneWithRepository(commit, repoName));
+            }
+
             IsLoading = false;
-            Commits = commits;
+            Commits = cloned;
+        }
+
+        private static Models.Commit CloneWithRepository(Models.Commit source, string repoName)
+        {
+            var cloned = new Models.Commit
+            {
+                SHA = source.SHA,
+                Author = source.Author,
+                AuthorTime = source.AuthorTime,
+                Committer = source.Committer,
+                CommitterTime = source.CommitterTime,
+                Subject = source.Subject,
+                Parents = source.Parents,
+                IsMerged = source.IsMerged,
+                Color = source.Color,
+                LeftMargin = source.LeftMargin,
+                IsHighlightedInGraph = source.IsHighlightedInGraph,
+            };
+
+            var decorators = new List<Models.Decorator>(source.Decorators.Count + 1);
+            if (!string.IsNullOrEmpty(repoName))
+                decorators.Add(new Models.Decorator { Type = Models.DecoratorType.Repository, Name = repoName });
+
+            decorators.AddRange(source.Decorators);
+            cloned.Decorators = decorators;
+
+            return cloned;
         }
 
         public Repository FindOwner(Models.Commit commit)
@@ -78,6 +116,9 @@ namespace SourceGit.ViewModels
         {
             if (decorator == null)
                 return false;
+
+            if (decorator.Type == Models.DecoratorType.Repository)
+                return true;
 
             if (decorator.Type == Models.DecoratorType.CurrentBranchHead ||
                 decorator.Type == Models.DecoratorType.CurrentCommitHead)
