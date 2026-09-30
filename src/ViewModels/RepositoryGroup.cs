@@ -443,6 +443,10 @@ namespace SourceGit.ViewModels
             if (page == null || child == null)
                 return;
 
+            // Keep the currently opened page (Dashboard / Local Changes) when switching.
+            if (page.Data is Repository previous && !ReferenceEquals(previous, child.Repo))
+                child.Repo.SelectedViewIndex = previous.SelectedViewIndex;
+
             page.Data = child.Repo;
             UpdateFocus(child.Repo);
         }
@@ -455,6 +459,10 @@ namespace SourceGit.ViewModels
             var page = GetOwnerPage();
             if (page == null)
                 return;
+
+            // Keep the currently opened page (Dashboard / Local Changes) when switching back.
+            if (page.Data is Repository previous && !ReferenceEquals(previous, this))
+                SelectedViewIndex = previous.SelectedViewIndex;
 
             page.Data = this;
             UpdateFocus(null);
