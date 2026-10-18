@@ -21,29 +21,16 @@ namespace SourceGit.ViewModels
             init;
         }
 
-        public List<string> LocalBranchNames
+        public List<Models.Branch> BasedOnBranches
         {
             get;
             init;
         }
 
-        public string SelectedBasedOn
+        public Models.Branch SelectedBasedOn
         {
             get => _selectedBasedOn;
-            set
-            {
-                if (SetProperty(ref _selectedBasedOn, value))
-                    OnPropertyChanged(nameof(BasedOnSha));
-            }
-        }
-
-        public string BasedOnSha
-        {
-            get
-            {
-                var branch = Repo.Branches.Find(x => x.IsLocal && x.Name.Equals(_selectedBasedOn, StringComparison.Ordinal));
-                return branch?.Head ?? "HEAD";
-            }
+            set => SetProperty(ref _selectedBasedOn, value);
         }
 
         public bool AlreadyExists
@@ -68,7 +55,7 @@ namespace SourceGit.ViewModels
             set => SetProperty(ref _isEnabled, value);
         }
 
-        private string _selectedBasedOn = string.Empty;
+        private Models.Branch _selectedBasedOn = null;
         private string _newBranchName = string.Empty;
         private bool _isEnabled = true;
     }
@@ -121,21 +108,34 @@ namespace SourceGit.ViewModels
                 if (repo.IsBare)
                     continue;
 
-                var names = new List<string>();
+                var locals = new List<Models.Branch>();
+                var remotes = new List<Models.Branch>();
                 foreach (var branch in repo.Branches)
                 {
-                    if (branch.IsLocal && !branch.IsDetachedHead)
-                        names.Add(branch.Name);
+                    if (branch.IsDetachedHead)
+                        continue;
+
+                    if (branch.IsLocal)
+                        locals.Add(branch);
+                    else
+                        remotes.Add(branch);
                 }
 
-                var current = repo.CurrentBranch?.IsDetachedHead == false ? repo.CurrentBranch.Name : names.Count > 0 ? names[0] : string.Empty;
+                locals.Sort((l, r) => Models.NumericSort.Compare(l.Name, r.Name));
+                remotes.Sort((l, r) => Models.NumericSort.Compare(l.FriendlyName, r.FriendlyName));
+
+                var all = new List<Models.Branch>(locals.Count + remotes.Count);
+                all.AddRange(locals);
+                all.AddRange(remotes);
+
+                var current = repo.CurrentBranch?.IsDetachedHead == false ? repo.CurrentBranch : null;
 
                 Repositories.Add(new CreateBranchGroupRepository
                 {
                     Repo = repo,
                     Name = group.GetChildName(repo),
-                    LocalBranchNames = names,
-                    SelectedBasedOn = current,
+                    BasedOnBranches = all,
+                    SelectedBasedOn = current ?? (locals.Count > 0 ? locals[0] : remotes.Count > 0 ? remotes[0] : null),
                 });
             }
         }
@@ -170,7 +170,7 @@ namespace SourceGit.ViewModels
             var targets = new List<CreateBranchGroupRepository>();
             foreach (var item in Repositories)
             {
-                if (item.IsEnabled && !string.IsNullOrEmpty(item.SelectedBasedOn))
+                if (item.IsEnabled && item.SelectedBasedOn != null)
                     targets.Add(item);
             }
 
@@ -185,7 +185,8 @@ namespace SourceGit.ViewModels
             var allSucc = true;
             foreach (var item in targets)
             {
-                var basedOnSha = item.BasedOnSha;
+                var basedOn = item.SelectedBasedOn;
+                var basedOnSha = basedOn.Head ?? "HEAD";
                 var succ = false;
 
                 if (CheckoutAfterCreated && !item.Repo.IsBare)
@@ -207,16 +208,28 @@ namespace SourceGit.ViewModels
                     continue;
                 }
 
-                var basedOn = item.Repo.Branches.Find(x => x.IsLocal && x.Name.Equals(item.SelectedBasedOn, StringComparison.Ordinal));
                 var created = new Models.Branch
                 {
                     Name = _name,
                     FullName = $"refs/heads/{_name}",
-                    CommitterDate = basedOn?.CommitterDate ?? 0,
+                    CommitterDate = basedOn.CommitterDate,
                     Head = basedOnSha,
                     IsLocal = true,
                     IsCurrent = CheckoutAfterCreated,
                 };
+
+                if (!basedOn.IsLocal && _name.Equals(basedOn.Name, StringComparison.Ordinal))
+                {
+                    await new Commands.Branch(item.Repo.FullPath, _name)
+                        .Use(log)
+                        .SetUpstreamAsync(basedOn);
+
+                    created.Upstream = basedOn.FullName;
+                }
+                else
+                {
+                    created.Upstream = string.Empty;
+                }
 
                 if (CheckoutAfterCreated)
                     item.Repo.RefreshAfterCheckoutBranch(created);
