@@ -28,6 +28,35 @@ namespace SourceGit.ViewModels
             init;
         }
 
+        public List<Models.Branch> Branches
+        {
+            get;
+            init;
+        }
+
+        public Models.Branch SelectedBranch
+        {
+            get => _selectedBranch;
+            set
+            {
+                if (SetProperty(ref _selectedBranch, value))
+                    Resolve();
+            }
+        }
+
+        public bool AllowOverwrite
+        {
+            get => _allowOverwrite;
+            set
+            {
+                if (_allowOverwrite != value)
+                {
+                    _allowOverwrite = value;
+                    Resolve();
+                }
+            }
+        }
+
         public GroupCheckoutAction Action
         {
             get;
@@ -60,11 +89,12 @@ namespace SourceGit.ViewModels
 
         public bool CanToggle => Action != GroupCheckoutAction.Skip;
 
-        public void Resolve(Models.Branch selected, bool allowOverwrite)
+        private void Resolve()
         {
             LocalBranch = null;
             RemoteBranch = null;
 
+            var selected = _selectedBranch;
             if (selected == null)
             {
                 Post(GroupCheckoutAction.Skip, string.Empty);
@@ -112,7 +142,7 @@ namespace SourceGit.ViewModels
                 else
                 {
                     var sameName = Repo.Branches.Find(x => x.IsLocal && x.Name.Equals(RemoteBranch.Name, StringComparison.Ordinal));
-                    if (sameName != null && !allowOverwrite)
+                    if (sameName != null && !_allowOverwrite)
                         Post(GroupCheckoutAction.Skip, App.Text("CheckoutBranchGroup.OverwriteNeeded"));
                     else
                         Post(GroupCheckoutAction.CreateFromRemote, App.Text("CheckoutBranchGroup.CreateFromRemote", RemoteBranch.Name));
@@ -134,6 +164,8 @@ namespace SourceGit.ViewModels
                 IsEnabled = true;
         }
 
+        private Models.Branch _selectedBranch = null;
+        private bool _allowOverwrite = false;
         private bool _isEnabled = true;
     }
 
@@ -150,7 +182,12 @@ namespace SourceGit.ViewModels
             set
             {
                 if (SetProperty(ref _selectedBranch, value))
-                    ResolveAll();
+                {
+                    // The top selector applies to every repository; each repository can
+                    // still be changed individually afterwards.
+                    foreach (var item in Repositories)
+                        item.SelectedBranch = value;
+                }
             }
         }
 
@@ -165,7 +202,10 @@ namespace SourceGit.ViewModels
             set
             {
                 if (SetProperty(ref _allowOverwrite, value))
-                    ResolveAll();
+                {
+                    foreach (var item in Repositories)
+                        item.AllowOverwrite = value;
+                }
             }
         }
 
@@ -210,25 +250,29 @@ namespace SourceGit.ViewModels
             remoteOptions.Sort((l, r) => Models.NumericSort.Compare(l.FriendlyName, r.FriendlyName));
             Branches.AddRange(remoteOptions);
 
-            Repositories = [];
-            foreach (var repo in repos)
-                Repositories.Add(new CheckoutBranchGroupRepository { Repo = repo, Name = group.GetChildName(repo) });
-
             var current = group.CurrentBranch;
-            _selectedBranch = current != null
+            var selected = current != null
                 ? Branches.Find(x => x.IsLocal && x.Name.Equals(current.Name, StringComparison.Ordinal))
                 : null;
-            _selectedBranch ??= Branches.Count > 0 ? Branches[0] : null;
+            _selectedBranch = selected ?? (Branches.Count > 0 ? Branches[0] : null);
 
-            ResolveAll();
+            Repositories = [];
+            foreach (var repo in repos)
+            {
+                var item = new CheckoutBranchGroupRepository
+                {
+                    Repo = repo,
+                    Name = group.GetChildName(repo),
+                    Branches = Branches,
+                    SelectedBranch = _selectedBranch,
+                };
+
+                Repositories.Add(item);
+            }
         }
 
         public override async Task<bool> Sure()
         {
-            var selected = _selectedBranch;
-            if (selected == null)
-                return true;
-
             var targets = new List<CheckoutBranchGroupRepository>();
             foreach (var item in Repositories)
             {
@@ -241,7 +285,7 @@ namespace SourceGit.ViewModels
 
             using var lockWatcher = _group.LockWatcher();
 
-            var log = _group.CreateLog($"Checkout Branch '{selected.Name}' in {targets.Count} repositories");
+            var log = _group.CreateLog($"Checkout Branch in {targets.Count} repositories");
             Use(log);
 
             foreach (var item in targets)
@@ -309,12 +353,6 @@ namespace SourceGit.ViewModels
 
             log.Complete();
             return true;
-        }
-
-        private void ResolveAll()
-        {
-            foreach (var item in Repositories)
-                item.Resolve(_selectedBranch, _allowOverwrite);
         }
 
         private readonly RepositoryGroup _group = null;

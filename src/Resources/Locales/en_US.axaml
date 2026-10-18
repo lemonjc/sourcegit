@@ -133,6 +133,8 @@
   <x:String x:Key="Text.CheckoutBranchGroup.LocalMissing" xml:space="preserve">Branch not found in this repository</x:String>
   <x:String x:Key="Text.CheckoutBranchGroup.OverwriteNeeded" xml:space="preserve">A branch with the same name already exists (enable overwrite)</x:String>
   <x:String x:Key="Text.CheckoutBranchGroup.RemoteMissing" xml:space="preserve">Remote branch not found in this repository</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.Target" xml:space="preserve">Target Branch (apply to all)</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.TargetTip" xml:space="preserve">Changing this applies the branch to all repositories. Each repository can still choose its own branch below.</x:String>
   <x:String x:Key="Text.CheckoutBranchGroup.Title" xml:space="preserve">Checkout Branch in All Repositories</x:String>
   <x:String x:Key="Text.CheckoutDetached" xml:space="preserve">Checkout Commit or Tag</x:String>
   <x:String x:Key="Text.CheckoutDetached.Target" xml:space="preserve">Target:</x:String>

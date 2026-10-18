@@ -137,6 +137,8 @@
   <x:String x:Key="Text.CheckoutBranchGroup.LocalMissing" xml:space="preserve">该仓库无此分支</x:String>
   <x:String x:Key="Text.CheckoutBranchGroup.OverwriteNeeded" xml:space="preserve">同名分支已存在（需允许覆盖）</x:String>
   <x:String x:Key="Text.CheckoutBranchGroup.RemoteMissing" xml:space="preserve">该仓库无此远程分支</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.Target" xml:space="preserve">目标分支（应用到全部）</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.TargetTip" xml:space="preserve">修改此项会应用到所有仓库；仍可在下方为每个仓库单独指定分支。</x:String>
   <x:String x:Key="Text.CheckoutBranchGroup.Title" xml:space="preserve">在所有仓库切换分支</x:String>
   <x:String x:Key="Text.CheckoutDetached" xml:space="preserve">检出提交或标签</x:String>
   <x:String x:Key="Text.CheckoutDetached.Target" xml:space="preserve">目标 ：</x:String>
