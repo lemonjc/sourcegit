@@ -757,7 +757,7 @@
   <x:String x:Key="Text.Preferences.Integration" xml:space="preserve">INTEGRATION</x:String>
   <x:String x:Key="Text.Preferences.Shell" xml:space="preserve">SHELL/TERMINAL</x:String>
   <x:String x:Key="Text.Preferences.Shell.Args" xml:space="preserve">Arguments</x:String>
-  <x:String x:Key="Text.Preferences.Shell.Args.Tip" xml:space="preserve">Please use '.' to indicate working directory</x:String>
+  <x:String x:Key="Text.Preferences.Shell.Args.ToolTip" xml:space="preserve">You can use '.' to indicate working directory and '$FOLDER_NAME' for the pure folder name of it.</x:String>
   <x:String x:Key="Text.Preferences.Shell.Path" xml:space="preserve">Path</x:String>
   <x:String x:Key="Text.Preferences.Shell.Type" xml:space="preserve">Shell/Terminal</x:String>
   <x:String x:Key="Text.PruneRemote" xml:space="preserve">Prune Remote</x:String>
@@ -987,10 +987,15 @@
   <x:String x:Key="Text.Stashes.Changes" xml:space="preserve">CHANGES</x:String>
   <x:String x:Key="Text.Stashes.Stashes" xml:space="preserve">STASHES</x:String>
   <x:String x:Key="Text.Statistics" xml:space="preserve">Statistics</x:String>
+  <x:String x:Key="Text.Statistics.Commits" xml:space="preserve">COMMITS</x:String>
   <x:String x:Key="Text.Statistics.Overview" xml:space="preserve">OVERVIEW</x:String>
   <x:String x:Key="Text.Statistics.ThisMonth" xml:space="preserve">MONTH</x:String>
   <x:String x:Key="Text.Statistics.ThisWeek" xml:space="preserve">WEEK</x:String>
   <x:String x:Key="Text.Statistics.Tips" xml:space="preserve">SourceGit will only get a maximum of 200,000 commits according to the target branch for analysis.</x:String>
+  <x:String x:Key="Text.Statistics.TopAuthors" xml:space="preserve">TOP AUTHORS</x:String>
+  <x:String x:Key="Text.Statistics.TopAuthors.Count" xml:space="preserve">COMMITS</x:String>
+  <x:String x:Key="Text.Statistics.TopAuthors.Percentage" xml:space="preserve">PERCENTAGE</x:String>
+  <x:String x:Key="Text.Statistics.TopAuthors.Tip" xml:space="preserve">Authors with less than 1% commits will be grouped under Others.</x:String>
   <x:String x:Key="Text.Statistics.TotalAuthors" xml:space="preserve">AUTHORS: </x:String>
   <x:String x:Key="Text.Statistics.TotalCommits" xml:space="preserve">COMMITS: </x:String>
   <x:String x:Key="Text.Submodule" xml:space="preserve">SUBMODULES</x:String>
@@ -1034,6 +1039,11 @@
   <x:String x:Key="Text.TagCM.Merge" xml:space="preserve">Merge ${0}$ into ${1}$...</x:String>
   <x:String x:Key="Text.TagCM.Push" xml:space="preserve">Push ${0}$...</x:String>
   <x:String x:Key="Text.Terminate" xml:space="preserve">TERMINATE</x:String>
+  <x:String x:Key="Text.TrustRepository" xml:space="preserve">Untrusted Repository</x:String>
+  <x:String x:Key="Text.TrustRepository.CommandTip" xml:space="preserve">Do you want to run `git config --global --add safe.directory {0}` command to trust this path?</x:String>
+  <x:String x:Key="Text.TrustRepository.Description" xml:space="preserve">Git refused to access this repository:  </x:String>
+  <x:String x:Key="Text.TrustRepository.Path" xml:space="preserve">Path:</x:String>
+  <x:String x:Key="Text.TrustRepository.ScanSkipped" xml:space="preserve">{0} repositories were skipped because git does not trust them. Please open them manually and confirm whether to trust them.</x:String>
   <x:String x:Key="Text.UpdateSubmodules" xml:space="preserve">Update Submodules</x:String>
   <x:String x:Key="Text.UpdateSubmodules.All" xml:space="preserve">All submodules</x:String>
   <x:String x:Key="Text.UpdateSubmodules.Init" xml:space="preserve">Initialize as needed</x:String>

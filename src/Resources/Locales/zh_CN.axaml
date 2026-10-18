@@ -761,7 +761,7 @@
   <x:String x:Key="Text.Preferences.Integration" xml:space="preserve">第三方工具集成</x:String>
   <x:String x:Key="Text.Preferences.Shell" xml:space="preserve">终端/SHELL</x:String>
   <x:String x:Key="Text.Preferences.Shell.Args" xml:space="preserve">启动参数</x:String>
-  <x:String x:Key="Text.Preferences.Shell.Args.Tip" xml:space="preserve">请使用 '.' 来指定工作目录</x:String>
+  <x:String x:Key="Text.Preferences.Shell.Args.ToolTip" xml:space="preserve">您可使用 '.' 来指代工作目录，及使用 '$FOLDER_NAME' 指代其目录文件夹名</x:String>
   <x:String x:Key="Text.Preferences.Shell.Path" xml:space="preserve">安装路径</x:String>
   <x:String x:Key="Text.Preferences.Shell.Type" xml:space="preserve">终端/SHELL</x:String>
   <x:String x:Key="Text.PruneRemote" xml:space="preserve">清理远程已删除分支</x:String>
@@ -991,10 +991,15 @@
   <x:String x:Key="Text.Stashes.Changes" xml:space="preserve">查看变更</x:String>
   <x:String x:Key="Text.Stashes.Stashes" xml:space="preserve">贮藏列表</x:String>
   <x:String x:Key="Text.Statistics" xml:space="preserve">提交统计</x:String>
+  <x:String x:Key="Text.Statistics.Commits" xml:space="preserve">提交统计图</x:String>
   <x:String x:Key="Text.Statistics.Overview" xml:space="preserve">总览</x:String>
   <x:String x:Key="Text.Statistics.ThisMonth" xml:space="preserve">本月</x:String>
   <x:String x:Key="Text.Statistics.ThisWeek" xml:space="preserve">本周</x:String>
   <x:String x:Key="Text.Statistics.Tips" xml:space="preserve">SourceGit 仅会按所选分支最多取出 200000 条提交记录进行分析</x:String>
+  <x:String x:Key="Text.Statistics.TopAuthors" xml:space="preserve">主要贡献者</x:String>
+  <x:String x:Key="Text.Statistics.TopAuthors.Count" xml:space="preserve">提交数量</x:String>
+  <x:String x:Key="Text.Statistics.TopAuthors.Percentage" xml:space="preserve">百分比</x:String>
+  <x:String x:Key="Text.Statistics.TopAuthors.Tip" xml:space="preserve">提交占比小于1%的作者会被统计入Others分组</x:String>
   <x:String x:Key="Text.Statistics.TotalAuthors" xml:space="preserve">贡献者人数: </x:String>
   <x:String x:Key="Text.Statistics.TotalCommits" xml:space="preserve">提交次数: </x:String>
   <x:String x:Key="Text.Submodule" xml:space="preserve">子模块</x:String>
@@ -1038,6 +1043,11 @@
   <x:String x:Key="Text.TagCM.Merge" xml:space="preserve">合并 ${0}$ 到 ${1}$...</x:String>
   <x:String x:Key="Text.TagCM.Push" xml:space="preserve">推送 ${0}$...</x:String>
   <x:String x:Key="Text.Terminate" xml:space="preserve">终止运行</x:String>
+  <x:String x:Key="Text.TrustRepository" xml:space="preserve">不受信任的仓库</x:String>
+  <x:String x:Key="Text.TrustRepository.CommandTip" xml:space="preserve">是否执行 `git config --global --add safe.directory {0}` 命令以信任该仓库？</x:String>
+  <x:String x:Key="Text.TrustRepository.Description" xml:space="preserve">Git 拒绝访问该仓库：  </x:String>
+  <x:String x:Key="Text.TrustRepository.Path" xml:space="preserve">路径 ：</x:String>
+  <x:String x:Key="Text.TrustRepository.ScanSkipped" xml:space="preserve">有 {0} 个仓库因 git 的信任检查被跳过，请手动打开它们并确认是否信任。</x:String>
   <x:String x:Key="Text.UpdateSubmodules" xml:space="preserve">更新子模块</x:String>
   <x:String x:Key="Text.UpdateSubmodules.All" xml:space="preserve">更新所有子模块</x:String>
   <x:String x:Key="Text.UpdateSubmodules.Init" xml:space="preserve">如未初始化子模块，先初始化</x:String>
