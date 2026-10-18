@@ -112,6 +112,10 @@
         <Path Width="14" Height="14" Data="{StaticResource Icons.Branch.Add}"/>
       </Button>
 
+      <Button Classes="icon_button" Width="32" Margin="12,0,0,0" Command="{Binding CheckoutBranch}" IsVisible="{Binding IsRepositoryGroup}" ToolTip.Tip="{DynamicResource Text.Checkout}">
+        <Path Width="14" Height="14" Data="{StaticResource Icons.Check}"/>
+      </Button>
+
       <Button Classes="icon_button" Width="32" Margin="12,0,0,0" Click="OpenGitFlowMenu" ToolTip.Tip="{DynamicResource Text.GitFlow}">
         <Button.IsVisible>
           <MultiBinding Converter="{x:Static BoolConverters.And}">

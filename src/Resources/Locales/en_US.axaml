@@ -126,6 +126,14 @@
   <x:String x:Key="Text.CheckoutBranchFromStash" xml:space="preserve">Checkout Branch From Stash</x:String>
   <x:String x:Key="Text.CheckoutBranchFromStash.Branch" xml:space="preserve">New Branch:</x:String>
   <x:String x:Key="Text.CheckoutBranchFromStash.Stash" xml:space="preserve">Stash:</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.AllowOverwrite" xml:space="preserve">Allow overwrite existing branches</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.AlreadyOn" xml:space="preserve">Already on this branch</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.CreateFromRemote" xml:space="preserve">Create '{0}' from remote</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.FastForward" xml:space="preserve">Fast-forward to {0}</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.LocalMissing" xml:space="preserve">Branch not found in this repository</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.OverwriteNeeded" xml:space="preserve">A branch with the same name already exists (enable overwrite)</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.RemoteMissing" xml:space="preserve">Remote branch not found in this repository</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.Title" xml:space="preserve">Checkout Branch in All Repositories</x:String>
   <x:String x:Key="Text.CheckoutDetached" xml:space="preserve">Checkout Commit or Tag</x:String>
   <x:String x:Key="Text.CheckoutDetached.Target" xml:space="preserve">Target:</x:String>
   <x:String x:Key="Text.CheckoutDetached.Warning" xml:space="preserve">Warning: After doing this, HEAD will be detached</x:String>

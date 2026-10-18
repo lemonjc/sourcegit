@@ -130,6 +130,14 @@
   <x:String x:Key="Text.CheckoutBranchFromStash" xml:space="preserve">从所选贮藏检出分支</x:String>
   <x:String x:Key="Text.CheckoutBranchFromStash.Branch" xml:space="preserve">新分支 ：</x:String>
   <x:String x:Key="Text.CheckoutBranchFromStash.Stash" xml:space="preserve">所选贮藏 ：</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.AllowOverwrite" xml:space="preserve">允许覆盖已存在的分支</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.AlreadyOn" xml:space="preserve">已是当前分支</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.CreateFromRemote" xml:space="preserve">基于远程创建 {0}</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.FastForward" xml:space="preserve">快进到 {0}</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.LocalMissing" xml:space="preserve">该仓库无此分支</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.OverwriteNeeded" xml:space="preserve">同名分支已存在（需允许覆盖）</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.RemoteMissing" xml:space="preserve">该仓库无此远程分支</x:String>
+  <x:String x:Key="Text.CheckoutBranchGroup.Title" xml:space="preserve">在所有仓库切换分支</x:String>
   <x:String x:Key="Text.CheckoutDetached" xml:space="preserve">检出提交或标签</x:String>
   <x:String x:Key="Text.CheckoutDetached.Target" xml:space="preserve">目标 ：</x:String>
   <x:String x:Key="Text.CheckoutDetached.Warning" xml:space="preserve">注意：执行该操作后，当前HEAD会变为游离(detached)状态!</x:String>

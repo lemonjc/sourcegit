@@ -390,6 +390,28 @@ namespace SourceGit.ViewModels
                 ShowPopup(new CreateBranchGroup(this));
         }
 
+        public override void CheckoutBranch()
+        {
+            var hasCommit = false;
+            foreach (var repo in _repositories)
+            {
+                if (repo.CurrentBranch != null)
+                {
+                    hasCommit = true;
+                    break;
+                }
+            }
+
+            if (!hasCommit)
+            {
+                SendNotification("Git cannot switch branches before your first commit.", true);
+                return;
+            }
+
+            if (CanCreatePopup())
+                ShowPopup(new CheckoutBranchGroup(this));
+        }
+
         public override async Task CheckoutBranchAsync(Models.Branch branch)
         {
             await CheckoutBranchInAllRepositoriesAsync(branch?.Name);

@@ -1452,9 +1452,14 @@ namespace SourceGit.ViewModels
                 ShowPopup(new CreateBranch(this, _currentBranch));
         }
 
-        public virtual async Task CheckoutBranchAsync(Models.Branch branch)
+        public virtual void CheckoutBranch()
         {
-            if (branch.IsLocal)
+            // Only used by the repository group toolbar. The button is hidden for a
+            // single repository, so there is nothing to do here.
+        }
+
+        public virtual async Task CheckoutBranchAsync(Models.Branch branch)
+        {            if (branch.IsLocal)
             {
                 var worktree = _worktrees.Find(x => x.IsAttachedTo(branch));
                 if (worktree != null)
