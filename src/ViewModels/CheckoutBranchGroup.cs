@@ -184,9 +184,10 @@ namespace SourceGit.ViewModels
                 if (SetProperty(ref _selectedBranch, value))
                 {
                     // The top selector applies to every repository; each repository can
-                    // still be changed individually afterwards.
+                    // still be changed individually afterwards. Branches are matched by
+                    // name because every repository has its own branch instances.
                     foreach (var item in Repositories)
-                        item.SelectedBranch = value;
+                        item.SelectedBranch = value == null ? null : item.Branches.Find(x => IsSameBranch(x, value));
                 }
             }
         }
@@ -213,9 +214,10 @@ namespace SourceGit.ViewModels
         {
             _group = group;
 
-            var locals = new Dictionary<string, Models.Branch>(StringComparer.Ordinal);
-            var remotes = new Dictionary<string, Models.Branch>(StringComparer.Ordinal);
             var repos = new List<Repository>();
+            var optionsByRepo = new Dictionary<Repository, List<Models.Branch>>();
+            HashSet<string> commonLocals = null;
+            HashSet<string> commonRemotes = null;
 
             foreach (var repo in group.Repositories)
             {
@@ -224,31 +226,63 @@ namespace SourceGit.ViewModels
 
                 repos.Add(repo);
 
+                var locals = new List<Models.Branch>();
+                var remotes = new List<Models.Branch>();
                 foreach (var branch in repo.Branches)
                 {
                     if (branch.IsDetachedHead)
                         continue;
 
                     if (branch.IsLocal)
-                    {
-                        if (!locals.ContainsKey(branch.Name))
-                            locals.Add(branch.Name, branch);
-                    }
-                    else if (!remotes.ContainsKey(branch.FriendlyName))
-                    {
-                        remotes.Add(branch.FriendlyName, branch);
-                    }
+                        locals.Add(branch);
+                    else
+                        remotes.Add(branch);
                 }
+
+                locals.Sort((l, r) => Models.NumericSort.Compare(l.Name, r.Name));
+                remotes.Sort((l, r) => Models.NumericSort.Compare(l.FriendlyName, r.FriendlyName));
+
+                var options = new List<Models.Branch>(locals.Count + remotes.Count);
+                options.AddRange(locals);
+                options.AddRange(remotes);
+                optionsByRepo.Add(repo, options);
+
+                var localNames = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var b in locals)
+                    localNames.Add(b.Name);
+
+                var remoteNames = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var b in remotes)
+                    remoteNames.Add(b.FriendlyName);
+
+                if (commonLocals == null)
+                    commonLocals = localNames;
+                else
+                    commonLocals.IntersectWith(localNames);
+
+                if (commonRemotes == null)
+                    commonRemotes = remoteNames;
+                else
+                    commonRemotes.IntersectWith(remoteNames);
             }
 
+            // The "apply to all" selector only contains branches that exist in every
+            // repository, so applying it never produces a missing branch row.
             Branches = [];
-            var localOptions = new List<Models.Branch>(locals.Values);
-            localOptions.Sort((l, r) => Models.NumericSort.Compare(l.Name, r.Name));
-            Branches.AddRange(localOptions);
+            if (repos.Count > 0 && commonLocals != null && commonRemotes != null)
+            {
+                foreach (var branch in optionsByRepo[repos[0]])
+                {
+                    if (branch.IsLocal && commonLocals.Contains(branch.Name))
+                        Branches.Add(branch);
+                }
 
-            var remoteOptions = new List<Models.Branch>(remotes.Values);
-            remoteOptions.Sort((l, r) => Models.NumericSort.Compare(l.FriendlyName, r.FriendlyName));
-            Branches.AddRange(remoteOptions);
+                foreach (var branch in optionsByRepo[repos[0]])
+                {
+                    if (!branch.IsLocal && commonRemotes.Contains(branch.FriendlyName))
+                        Branches.Add(branch);
+                }
+            }
 
             var current = group.CurrentBranch;
             var selected = current != null
@@ -259,12 +293,18 @@ namespace SourceGit.ViewModels
             Repositories = [];
             foreach (var repo in repos)
             {
+                var options = optionsByRepo[repo];
+                var initial = _selectedBranch != null ? options.Find(x => IsSameBranch(x, _selectedBranch)) : null;
+                if (initial == null && repo.CurrentBranch != null)
+                    initial = options.Find(x => x.IsLocal && x.Name.Equals(repo.CurrentBranch.Name, StringComparison.Ordinal));
+                initial ??= options.Count > 0 ? options[0] : null;
+
                 var item = new CheckoutBranchGroupRepository
                 {
                     Repo = repo,
                     Name = group.GetChildName(repo),
-                    Branches = Branches,
-                    SelectedBranch = _selectedBranch,
+                    Branches = options,
+                    SelectedBranch = initial,
                 };
 
                 Repositories.Add(item);
@@ -353,6 +393,16 @@ namespace SourceGit.ViewModels
 
             log.Complete();
             return true;
+        }
+
+        private static bool IsSameBranch(Models.Branch l, Models.Branch r)
+        {
+            if (l == null || r == null || l.IsLocal != r.IsLocal)
+                return false;
+
+            return l.IsLocal
+                ? l.Name.Equals(r.Name, StringComparison.Ordinal)
+                : l.FriendlyName.Equals(r.FriendlyName, StringComparison.Ordinal);
         }
 
         private readonly RepositoryGroup _group = null;
