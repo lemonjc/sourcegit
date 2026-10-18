@@ -342,6 +342,11 @@
   <x:String x:Key="Text.CreateBranchGroup.AllowOverwrite" xml:space="preserve">Allow overwrite existed branches</x:String>
   <x:String x:Key="Text.CreateBranchGroup.AlreadyExists" xml:space="preserve">Branch already exists</x:String>
   <x:String x:Key="Text.CreateBranchGroup.Title" xml:space="preserve">Create Branch in All Repositories</x:String>
+  <x:String x:Key="Text.CreateGroup.AddFromDisk" xml:space="preserve">Add from Disk...</x:String>
+  <x:String x:Key="Text.CreateGroup.Filter" xml:space="preserve">Filter repositories...</x:String>
+  <x:String x:Key="Text.CreateGroup.InvalidRepository" xml:space="preserve">Not a git repository: {0}</x:String>
+  <x:String x:Key="Text.CreateGroup.OpenAsCollection" xml:space="preserve">Open as repository collection after created</x:String>
+  <x:String x:Key="Text.CreateGroup.Repositories" xml:space="preserve">Repositories:</x:String>
   <x:String x:Key="Text.CreateTag" xml:space="preserve">Create Tag...</x:String>
   <x:String x:Key="Text.CreateTag.BasedOn" xml:space="preserve">New Tag At:</x:String>
   <x:String x:Key="Text.CreateTag.GPGSign" xml:space="preserve">GPG signing</x:String>

@@ -346,6 +346,11 @@
   <x:String x:Key="Text.CreateBranchGroup.AllowOverwrite" xml:space="preserve">允许覆盖已存在的分支</x:String>
   <x:String x:Key="Text.CreateBranchGroup.AlreadyExists" xml:space="preserve">分支已存在</x:String>
   <x:String x:Key="Text.CreateBranchGroup.Title" xml:space="preserve">在所有仓库创建分支</x:String>
+  <x:String x:Key="Text.CreateGroup.AddFromDisk" xml:space="preserve">从本地添加...</x:String>
+  <x:String x:Key="Text.CreateGroup.Filter" xml:space="preserve">过滤仓库...</x:String>
+  <x:String x:Key="Text.CreateGroup.InvalidRepository" xml:space="preserve">不是 Git 仓库：{0}</x:String>
+  <x:String x:Key="Text.CreateGroup.OpenAsCollection" xml:space="preserve">创建后打开为仓库集合</x:String>
+  <x:String x:Key="Text.CreateGroup.Repositories" xml:space="preserve">包含仓库：</x:String>
   <x:String x:Key="Text.CreateTag" xml:space="preserve">新建标签...</x:String>
   <x:String x:Key="Text.CreateTag.BasedOn" xml:space="preserve">标签位于 ：</x:String>
   <x:String x:Key="Text.CreateTag.GPGSign" xml:space="preserve">使用GPG签名</x:String>

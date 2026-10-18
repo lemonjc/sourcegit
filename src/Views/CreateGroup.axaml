@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:SourceGit.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="560" d:DesignHeight="520"
              x:Class="SourceGit.Views.CreateGroup"
              x:DataType="vm:CreateGroup">
   <StackPanel Orientation="Vertical" Margin="8,0,0,0">
@@ -17,9 +17,72 @@
                  Text="{DynamicResource Text.Welcome.AddRootFolder}"/>
     </StackPanel>
 
-    <Grid Margin="8,16,0,0" Height="28" ColumnDefinitions="Auto,*">
-      <TextBlock Grid.Column="0" HorizontalAlignment="Right" Margin="8,0" Text="{DynamicResource Text.Name}"/>
+    <Grid Margin="0,16,0,0" Height="28" ColumnDefinitions="110,*">
+      <TextBlock Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0" Text="{DynamicResource Text.Name}"/>
       <TextBox Grid.Column="1" CornerRadius="3" Text="{Binding Name, Mode=TwoWay}"/>
     </Grid>
+
+    <CheckBox Margin="110,8,0,0"
+              Content="{DynamicResource Text.CreateGroup.OpenAsCollection}"
+              IsChecked="{Binding OpenAsCollection, Mode=TwoWay}"/>
+
+    <Grid Margin="0,12,0,0" RowDefinitions="28,Auto" ColumnDefinitions="110,*">
+      <TextBlock Grid.Row="0" Grid.Column="0"
+                 HorizontalAlignment="Right" VerticalAlignment="Center"
+                 Margin="0,0,8,0"
+                 Text="{DynamicResource Text.CreateGroup.Repositories}"/>
+      <TextBox Grid.Row="0" Grid.Column="1"
+               Height="26"
+               CornerRadius="13"
+               Watermark="{DynamicResource Text.CreateGroup.Filter}"
+               Text="{Binding Filter, Mode=TwoWay}"
+               VerticalContentAlignment="Center">
+        <TextBox.InnerLeftContent>
+          <Path Width="13" Height="13"
+                Margin="8,0,0,0"
+                Fill="{DynamicResource Brush.FG2}"
+                Data="{StaticResource Icons.Search}"/>
+        </TextBox.InnerLeftContent>
+      </TextBox>
+
+      <Border Grid.Row="1" Grid.Column="1"
+              Margin="0,4,0,0"
+              Padding="0,2"
+              CornerRadius="6"
+              BorderThickness="1"
+              BorderBrush="{DynamicResource Brush.Border1}">
+        <ScrollViewer MaxHeight="220"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+          <ItemsControl ItemsSource="{Binding VisibleRepositories, Mode=OneWay}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="vm:CreateGroupRepository">
+                <CheckBox Margin="6,2" IsChecked="{Binding IsSelected, Mode=TwoWay}">
+                  <StackPanel Orientation="Vertical" Margin="0,2">
+                    <TextBlock Text="{Binding Name, Mode=OneWay}"/>
+                    <TextBlock Classes="small"
+                               Foreground="{DynamicResource Brush.FG2}"
+                               TextTrimming="CharacterEllipsis"
+                               Text="{Binding FullPath, Mode=OneWay}"/>
+                  </StackPanel>
+                </CheckBox>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Border>
+    </Grid>
+
+    <Button Classes="flat"
+            Margin="0,8,0,0"
+            Padding="12,0"
+            Height="28"
+            HorizontalAlignment="Right"
+            Click="OnAddFromDisk">
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <Path Width="13" Height="13" Margin="0,0,6,0" Data="{StaticResource Icons.Folder.Open}"/>
+        <TextBlock Text="{DynamicResource Text.CreateGroup.AddFromDisk}"/>
+      </StackPanel>
+    </Button>
   </StackPanel>
 </UserControl>
